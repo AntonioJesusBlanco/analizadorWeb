@@ -1,0 +1,115 @@
+---
+const title = "🔍 Analizador de métricas web";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{title}</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        padding: 2rem;
+        background: #fafafa;
+      }
+      form {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+      input {
+        padding: 8px;
+        width: 300px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      button {
+        padding: 8px 12px;
+        border: none;
+        background: #0070f3;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+      pre {
+        background: #f4f4f4;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 2rem;
+        overflow-x: auto;
+      }
+      .error {
+        color: red;
+        margin-top: 1rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>{title}</h1>
+
+    <form id="metrics-form">
+      <input
+        id="url-input"
+        type="text"
+        placeholder="Introduce una URL (https://...)"
+        required
+      />
+      <button id="analyze-btn" type="submit">Analizar</button>
+    </form>
+
+    <div id="output"></div>
+
+    <script>
+      const form = document.getElementById("metrics-form")!;
+      const input = document.getElementById("url-input")! as HTMLInputElement;
+      const output = document.getElementById("output")!;
+      const button = document.getElementById("analyze-btn")! as HTMLButtonElement;
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const url = input.value.trim();
+        if (!url) return;
+
+        button.disabled = true;
+        button.textContent = "Analizando...";
+        output.innerHTML = "";
+
+        try {
+          const res = await fetch("http://localhost:3000/api/metrics", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url }),
+          });
+          const data = await res.json();
+
+          if (data.error) {
+            output.innerHTML = '<p class="error">❌ ' + data.message + "</p>";
+          } else {
+            output.innerHTML = `
+              <h2>Resultados para: ${data.url}</h2>
+              <ul>
+                <li><strong>Tiempo de carga:</strong> ${data.loadTime} ms</li>
+                <li><strong>Tamaño total:</strong> ${data.totalSizeKB} KB</li>
+                <li><strong>Recursos:</strong> ${data.resourceCount}</li>
+              </ul>
+              <pre>${JSON.stringify(data.performance, null, 2)}</pre>
+              <pre>${JSON.stringify(data.webVitals, null, 2)}</pre>
+            `;
+          }
+        } catch (err) {
+          output.innerHTML =
+            '<p class="error">Error';
+          console.error(err);
+        } finally {
+          button.disabled = false;
+          button.textContent = "Analizar";
+        }
+      });
+    </script>
+  </body>
+</html>
