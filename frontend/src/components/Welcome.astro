@@ -1,55 +1,10 @@
 ---
 const title = "🔍 Analizador de métricas web";
+
+import Layout from '../layouts/Layout.astro';
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>{title}</title>
-    <style>
-      body {
-        font-family: system-ui, sans-serif;
-        padding: 2rem;
-        background: #fafafa;
-      }
-      form {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-      }
-      input {
-        padding: 8px;
-        width: 300px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-      }
-      button {
-        padding: 8px 12px;
-        border: none;
-        background: #0070f3;
-        color: white;
-        border-radius: 6px;
-        cursor: pointer;
-      }
-      button:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-      }
-      pre {
-        background: #f4f4f4;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-top: 2rem;
-        overflow-x: auto;
-      }
-      .error {
-        color: red;
-        margin-top: 1rem;
-      }
-    </style>
-  </head>
-
-  <body>
+<Layout>
     <h1>{title}</h1>
 
     <form id="metrics-form">
@@ -65,6 +20,8 @@ const title = "🔍 Analizador de métricas web";
     <div id="output"></div>
 
     <script>
+      import { API_URL } from "../lib/config";
+
       const form = document.getElementById("metrics-form")!;
       const input = document.getElementById("url-input")! as HTMLInputElement;
       const output = document.getElementById("output")!;
@@ -80,7 +37,7 @@ const title = "🔍 Analizador de métricas web";
         output.innerHTML = "";
 
         try {
-          const res = await fetch("http://localhost:3000/api/metrics", {
+          const res = await fetch(`${API_URL}/metrics`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url }),
@@ -111,5 +68,4 @@ const title = "🔍 Analizador de métricas web";
         }
       });
     </script>
-  </body>
-</html>
+</Layout>

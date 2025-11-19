@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout> 
+  
+  <div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="display-5">Dashboard</h1>
+      <button id="logout" class="btn btn-danger">Cerrar sesión</button>
+    </div>
+
+    <!-- Añadir URL -->
+    <div class="card mb-4 shadow-sm p-4">
+      <h2 class="h5 mb-3">Añadir URL</h2>
+      <div class="input-group">
+        <input id="urlInput" class="form-control" placeholder="https://..." />
+        <button id="addUrl" class="btn btn-primary">Agregar URL</button>
+      </div>
+    </div>
+
+    <!-- Mis métricas -->
+    <div class="card shadow-sm p-4">
+      <h2 class="h5 mb-3">Mis Métricas</h2>
+      <button id="loadMetrics" class="btn btn-success mb-3">Cargar métricas</button>
+      <div id="metrics" class="row g-3">
+        <!-- Las métricas se insertarán como tarjetas aquí -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // URL base de tu API
+    const API_URL = 'http://localhost:3000/api';
+
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = '/login';
+
+    const logoutBtn = document.getElementById('logout');
+    const addUrlBtn = document.getElementById('addUrl');
+    const loadMetricsBtn = document.getElementById('loadMetrics');
+    const metricsPre = document.getElementById('metrics');
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    });
+
+    addUrlBtn.addEventListener('click', async () => {
+  const urlInput = document.getElementById('urlInput');
+  const url = urlInput.value.trim();
+  if (!url) return alert('Introduce una URL');
+
+  try {
+    // 1️⃣ Añadir la URL
+    await fetch(`${API_URL}/urls`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ url })
+    });
+
+    // 2️⃣ Medir la URL
+    const resMetric = await fetch(`${API_URL}/metrics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ url })
+    });
+
+    const dataMetric = await resMetric.json();
+    alert(dataMetric.message || 'URL añadida y métricas generadas');
+
+  } catch (err) {
+    console.error(err);
+    alert('Error al añadir URL o generar métricas');
+  }
+});
+
+
+    loadMetricsBtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch(`${API_URL}/my-metrics`, {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        console.log("Datos recibidos:", data); // <--- aquí
+
+        metricsPre.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        console.error(err);
+        metricsPre.textContent = 'Error cargando métricas';
+      }
+    });
+  </script>
+</Layout>
