@@ -1,94 +1,795 @@
 ---
-import Layout from '../layouts/Layout.astro';
+export const prerender = false;
+
+const API_URL = "http://localhost:3000/api"
+
+let token = null;
+if (!Astro.cookies.has("token")) {
+  Astro.redirect("/login");
+}
+
+token = Astro.cookies.get("token")?.value;
 ---
 
-<Layout> 
-  
-  <div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1 class="display-5">Dashboard</h1>
-      <button id="logout" class="btn btn-danger">Cerrar sesión</button>
-    </div>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Métricas</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
 
-    <!-- Añadir URL -->
-    <div class="card mb-4 shadow-sm p-4">
-      <h2 class="h5 mb-3">Añadir URL</h2>
-      <div class="input-group">
-        <input id="urlInput" class="form-control" placeholder="https://..." />
-        <button id="addUrl" class="btn btn-primary">Agregar URL</button>
+  <!-- Bootstrap header replacing Tailwind classes -->
+  <header class="border-bottom bg-white pt-5 mt-3">
+    <div class="container py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <svg width="24" height="24" fill="black" stroke="black" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+          <h1 class="h3 mb-0 text-black">Dashboard de Métricas</h1>
+          <!-- Added username display -->
+          <span id="usernameDisplay" class="badge bg-primary ms-3"></span>
+        </div>
+        <button id="logoutBtn" class="btn btn-danger">
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container py-4">
+    <!-- Add URL Section with Bootstrap cards and forms -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h2 class="h5 card-title">Añadir URL</h2>
+        <p class="text-muted small mb-3">Introduce una URL para analizar sus métricas de rendimiento</p>
+        <div class="d-flex gap-2">
+          <input 
+            type="text" 
+            id="urlInput" 
+            placeholder="https://ejemplo.com"
+            class="form-control"
+          />
+          <!-- Added loading state to button -->
+          <button id="addUrlBtn" class="btn btn-primary d-flex align-items-center gap-2" style="min-width: 120px;">
+            <span id="addBtnText">Agregar</span>
+            <div id="addBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </button>
+        </div>
+        <!-- Added loading message below input -->
+        <div id="addingMetricMessage" class="d-none mt-3">
+          <div class="alert alert-info d-flex align-items-center mb-0" role="alert">
+            <div class="spinner-border spinner-border-sm me-2" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <div>
+              <strong>Analizando URL...</strong> Esto puede tardar hasta 30 segundos mientras capturamos las métricas de rendimiento.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Mis métricas -->
-    <div class="card shadow-sm p-4">
-      <h2 class="h5 mb-3">Mis Métricas</h2>
-      <button id="loadMetrics" class="btn btn-success mb-3">Cargar métricas</button>
-      <div id="metrics" class="row g-3">
-        <!-- Las métricas se insertarán como tarjetas aquí -->
+    <!-- Load Metrics Button -->
+    <button id="loadMetricsBtn" class="btn btn-success w-100 mb-4">
+      Cargar Métricas
+    </button>
+
+    <!-- Loading State with Bootstrap spinner -->
+    <div id="loadingState" class="d-none text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-3 text-muted">Cargando métricas...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <svg width="48" height="48" class="text-secondary mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+        <h3 class="h5">No hay métricas disponibles</h3>
+        <p class="text-muted small">Añade una URL y haz clic en "Cargar Métricas" para ver los resultados</p>
       </div>
     </div>
-  </div>
 
-  <script type="module">
-    // URL base de tu API
-    const API_URL = 'http://localhost:3000/api';
+    <!-- Metrics Display with Bootstrap grid system -->
+    <div id="metricsDisplay" class="d-none">
+      <div class="row g-4">
+        <!-- URLs List -->
+        <div class="col-lg-3">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h3 class="h6 fw-bold mb-2">URLs Analizadas</h3>
+              <p id="urlCount" class="small text-muted mb-3">0 URLs</p>
+              <div id="urlsList" class="d-flex flex-column gap-2"></div>
+            </div>
+          </div>
+        </div>
 
-    const token = localStorage.getItem('token');
-    if (!token) window.location.href = '/login';
+        <!-- Metric Details -->
+        <div class="col-lg-9">
+          <!-- Overview Cards with Bootstrap grid -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <p class="small text-muted mb-1">Tiempo de Carga</p>
+                  <p id="loadTime" class="h4 mb-0">-</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <p class="small text-muted mb-1">Tamaño Total</p>
+                  <p id="totalSize" class="h4 mb-0">-</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <p class="small text-muted mb-1">Recursos</p>
+                  <p id="resourceCount" class="h4 mb-0">-</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card shadow-sm">
+                <div class="card-body">
+                  <p class="small text-muted mb-1">FCP</p>
+                  <p id="fcpValue" class="h4 mb-0">-</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-    const logoutBtn = document.getElementById('logout');
-    const addUrlBtn = document.getElementById('addUrl');
-    const loadMetricsBtn = document.getElementById('loadMetrics');
-    const metricsPre = document.getElementById('metrics');
+          <!-- Tabs with Bootstrap nav-tabs -->
+          <div class="card shadow-sm">
+            <div class="card-header p-0">
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" data-tab="performance" type="button" role="tab">
+                    Performance
+                  </button>
+                </li>
+                <!-- Added Charts tab -->
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" data-tab="charts" type="button" role="tab">
+                    Gráficas
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" data-tab="resources" type="button" role="tab">
+                    Recursos
+                  </button>
+                </li>
+              </ul>
+            </div>
 
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    });
+            <div class="card-body">
+              <!-- Web Vitals Tab -->
+              
 
-    addUrlBtn.addEventListener('click', async () => {
-  const urlInput = document.getElementById('urlInput');
-  const url = urlInput.value.trim();
-  if (!url) return alert('Introduce una URL');
+              <!-- Performance Tab -->
+              <div id="performance-tab" class="tab-content-item d-none">
+                <h3 class="h6 fw-bold mb-3">Métricas de Performance</h3>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span class="small">DNS Lookup</span>
+                    <span id="perf-dns" class="badge bg-light text-dark">- ms</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span class="small">TCP Connect</span>
+                    <span id="perf-tcp" class="badge bg-light text-dark">- ms</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span class="small">TTFB</span>
+                    <span id="perf-ttfb" class="badge bg-light text-dark">- ms</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span class="small">Response Download</span>
+                    <span id="perf-response" class="badge bg-light text-dark">- ms</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span class="small">DOM Content Loaded</span>
+                    <span id="perf-dom" class="badge bg-light text-dark">- ms</span>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
+                    <span class="small fw-medium">Total Load Time</span>
+                    <span id="perf-total" class="badge bg-primary">- ms</span>
+                  </div>
+                </div>
+              </div>
 
-  try {
-    // 1️⃣ Añadir la URL
-    await fetch(`${API_URL}/urls`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ url })
-    });
+              <!-- Added Charts Tab with Chart.js visualizations -->
+              <div id="charts-tab" class="tab-content-item d-none">
+                <h3 class="h6 fw-bold mb-3">Visualización de Métricas</h3>
+                <div class="row g-3">
+                  
+                  <div class="col-12">
+                    <div class="card border">
+                      <div class="card-body">
+                        <h5 class="card-title h6">Desglose de Performance (ms)</h5>
+                        <canvas id="performanceChart" height="80"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card border">
+                      <div class="card-body">
+                        <h5 class="card-title h6">Distribución de Tiempo de Carga</h5>
+                        <canvas id="loadTimeChart"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card border">
+                      <div class="card-body">
+                        <h5 class="card-title h6">Comparación de Recursos</h5>
+                        <canvas id="resourcesChart"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Agregar gráfico circular de tipos de archivos -->
+                  <div class="col-md-6">
+                    <div class="card border">
+                      <div class="card-body">
+                        <h5 class="card-title h6">Distribución de Archivos por Tipo</h5>
+                        <canvas id="filesTypeChart"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card border">
+                      <div class="card-body">
+                        <h5 class="card-title h6">Tamaño Total por Tipo de Archivo</h5>
+                        <canvas id="filesSizeChart"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    // 2️⃣ Medir la URL
-    const resMetric = await fetch(`${API_URL}/metrics`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ url })
-    });
+              <!-- Resources Tab -->
+              <div id="resources-tab" class="tab-content-item d-none">
+                <h3 class="h6 fw-bold mb-3">Recursos Cargados</h3>
+                <div class="small text-muted mb-2">
+                  Los recursos se han registrado durante la carga de la página
+                </div>
+                <div id="resourcesList" class="small text-muted fst-italic">
+                  Nota: Los detalles específicos de recursos no están disponibles en la API actual.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    const dataMetric = await resMetric.json();
-    alert(dataMetric.message || 'URL añadida y métricas generadas');
+  <script define:vars={{ API_URL }}>
+    let metrics = []
+    let selectedMetric = null
+    let webVitalsChart = null
+    let performanceChart = null
+    let loadTimeChart = null
+    let resourcesChart = null
+    let filesTypeChart = null
+    let filesSizeChart = null
 
-  } catch (err) {
-    console.error(err);
-    alert('Error al añadir URL o generar métricas');
-  }
-});
+    const token = localStorage.getItem("token")
 
+    if(token === null){
+      window.location.href = "/login"
+    }
+    
+    async function loadUsername() {
+      try {
+        if (!token) {
+          console.log('[v0] No token found')
+          document.getElementById('usernameDisplay').textContent = ''
+          return
+        }
+        // Decode JWT to get username (simple client-side decode)
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        const username = payload.username || payload.user
+        if (username) {
+          document.getElementById('usernameDisplay').textContent = `👤 ${username}`
+        } else {
+          console.log('[v0] No username found in token')
+          document.getElementById('usernameDisplay').textContent = ''
+        }
+      } catch (err) {
+        console.error('[v0] Error loading username:', err)
+        document.getElementById('usernameDisplay').textContent = ''
+      }
+    }
 
-    loadMetricsBtn.addEventListener('click', async () => {
+    async function initializeDashboard() {
+      console.log('[v0] Initializing dashboard...')
+      loadUsername()
+      // Wait a bit for DOM to be ready, then load metrics
+      setTimeout(() => {
+        loadMetrics()
+      }, 100)
+    }
+
+    // Load username and metrics on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeDashboard)
+    } else {
+      initializeDashboard()
+    }
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      // Borrar token del localStorage
+      localStorage.removeItem("token")
+      
+      // Borrar cookie
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      
+      // Llamar al backend para limpiar sesión
+      try {
+        await fetch("http://localhost:3000/api/logout", { method: "POST" })
+      } catch (err) {
+        console.log("Session cleanup completed")
+      }
+      
+      // Redirigir a login
+      window.location.href = "/login"
+    })
+
+    document.getElementById("addUrlBtn").addEventListener("click", async () => {
+      const urlInput = document.getElementById("urlInput")
+      const url = urlInput.value.trim()
+
+      if (!url) {
+        alert("Introduce una URL válida")
+        return
+      }
+
+      const addBtn = document.getElementById("addUrlBtn")
+      const addBtnText = document.getElementById("addBtnText")
+      const addBtnSpinner = document.getElementById("addBtnSpinner")
+      const addingMessage = document.getElementById("addingMetricMessage")
+
+      // Show loading state
+      addBtn.disabled = true
+      addBtnText.textContent = "Procesando..."
+      addBtnSpinner.classList.remove("d-none")
+      addingMessage.classList.remove("d-none")
+
+      try {
+        await fetch(`${API_URL}/urls`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ url }),
+        })
+
+        const resMetric = await fetch(`${API_URL}/metrics`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ url }),
+        })
+
+        const dataMetric = await resMetric.json()
+        
+        // Show success message
+        const successAlert = document.createElement('div')
+        successAlert.className = 'alert alert-success alert-dismissible fade show mt-3'
+        successAlert.innerHTML = `
+          <strong>¡Éxito!</strong> ${dataMetric.message || 'URL añadida y métricas generadas correctamente'}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `
+        addingMessage.parentNode.appendChild(successAlert)
+        
+        setTimeout(() => successAlert.remove(), 5000)
+        
+        urlInput.value = ""
+        loadMetrics()
+      } catch (err) {
+        console.error(err)
+        alert("Error al añadir URL o generar métricas")
+      } finally {
+        // Hide loading state
+        addBtn.disabled = false
+        addBtnText.textContent = "Agregar"
+        addBtnSpinner.classList.add("d-none")
+        addingMessage.classList.add("d-none")
+      }
+    })
+
+    async function loadMetrics() {
+      const loadingState = document.getElementById("loadingState")
+      const emptyState = document.getElementById("emptyState")
+      const metricsDisplay = document.getElementById("metricsDisplay")
+
+      console.log('[v0] Loading metrics...')
+
+      loadingState.classList.remove("d-none")
+      emptyState.classList.add("d-none")
+      metricsDisplay.classList.add("d-none")
+
       try {
         const res = await fetch(`${API_URL}/my-metrics`, {
-          headers: { 'Authorization': 'Bearer ' + token }
-        });
-        const data = await res.json();
-        console.log("Datos recibidos:", data); // <--- aquí
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        
+        console.log('[v0] Metrics response status:', res.status)
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`)
+        }
+        
+        const data = await res.json()
+        console.log('[v0] Metrics loaded:', data)
+        metrics = data
 
-        metricsPre.textContent = JSON.stringify(data, null, 2);
+        loadingState.classList.add("d-none")
+
+        if (metrics.length === 0) {
+          console.log('[v0] No metrics found')
+          emptyState.classList.remove("d-none")
+          return
+        }
+
+        metricsDisplay.classList.remove("d-none")
+        selectedMetric = metrics[0]
+        console.log('[v0] Selected metric:', selectedMetric)
+        renderMetrics()
       } catch (err) {
-        console.error(err);
-        metricsPre.textContent = 'Error cargando métricas';
+        console.error('[v0] Error loading metrics:', err)
+        loadingState.classList.add("d-none")
+        emptyState.classList.remove("d-none")
       }
-    });
+    }
+
+    function renderMetrics() {
+      // Update URL count
+      document.getElementById("urlCount").textContent = `${metrics.length} URLs`
+
+      // Render URLs list
+      const urlsList = document.getElementById("urlsList")
+      urlsList.innerHTML = metrics
+        .map(
+          (metric) => `
+        <button 
+          class="btn btn-sm text-start w-100 ${
+            selectedMetric.id === metric.id ? "btn-primary" : "btn-outline-secondary"
+          }"
+          onclick="selectMetric(${metric.id})"
+        >
+          <div class="fw-semibold small text-truncate">${metric.url}</div>
+          <div class="small opacity-75">${new Date(metric.created_at).toLocaleDateString()}</div>
+        </button>
+      `
+        )
+        .join("")
+
+      renderSelectedMetric()
+    }
+
+    function renderSelectedMetric() {
+      if (!selectedMetric) return
+
+      // Overview cards
+      document.getElementById("loadTime").textContent = `${
+        selectedMetric.real_load_time || selectedMetric.load_time
+      }ms`
+      document.getElementById("totalSize").textContent = `${selectedMetric.total_size_kb} KB`
+      document.getElementById("resourceCount").textContent = selectedMetric.resource_count
+      document.getElementById("fcpValue").textContent = selectedMetric.fcp
+        ? `${selectedMetric.fcp.toFixed(0)}ms`
+        : "-"
+
+      const webVitals = typeof selectedMetric.web_vitals === 'string' 
+        ? JSON.parse(selectedMetric.web_vitals || '{}') 
+        : (selectedMetric.web_vitals || {})
+      
+      const performance = typeof selectedMetric.performance === 'string'
+        ? JSON.parse(selectedMetric.performance || '{}')
+        : (selectedMetric.performance || {})
+
+      // Web Vitals
+      
+      // Performance
+      document.getElementById("perf-dns").textContent = `${performance.dnsLookup?.toFixed(2) || 0} ms`
+      document.getElementById("perf-tcp").textContent = `${performance.tcpConnect?.toFixed(2) || 0} ms`
+      document.getElementById("perf-ttfb").textContent = `${performance.ttfb?.toFixed(2) || 0} ms`
+      document.getElementById("perf-response").textContent = `${performance.response?.toFixed(2) || 0} ms`
+      document.getElementById("perf-dom").textContent = `${performance.domContentLoaded?.toFixed(2) || 0} ms`
+      document.getElementById("perf-total").textContent = `${performance.totalLoad?.toFixed(2) || 0} ms`
+
+      updateCharts()
+    }
+
+    async function loadFileStats() {
+      try {
+        console.log("[v0] Loading file stats for url_id:", selectedMetric.url_id)
+        const response = await fetch(`${API_URL}/files/stats/${selectedMetric.url_id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        
+        console.log("[v0] File stats response status:", response.status)
+        
+        if (!response.ok) {
+          console.error(`[v0] File stats error: ${response.status} ${response.statusText}`)
+          const errorText = await response.text()
+          console.error("[v0] Error details:", errorText)
+          return null
+        }
+        
+        const fileStats = await response.json()
+        console.log("[v0] File stats loaded:", fileStats)
+        return fileStats
+      } catch (err) {
+        console.error('[v0] Error loading file stats:', err)
+        return null
+      }
+    }
+    async function updateCharts() {
+      if (!selectedMetric) return
+
+      const vitals = selectedMetric.web_vitals || {}
+      const perf = selectedMetric.performance || {}
+
+
+      // Performance Timeline Chart
+      const performanceCtx = document.getElementById('performanceChart')
+      if (performanceChart) performanceChart.destroy()
+      
+      performanceChart = new Chart(performanceCtx, {
+        type: 'bar',
+        data: {
+          labels: ['FCP (ms)', 'TTFB (ms)','DNS', 'TCP', 'TTFB', 'Response', 'DOM Load'],
+          datasets: [{
+            label: 'Tiempo (ms)',
+            data: [
+              vitals.FCP || 0,
+              vitals.TTFB || 0,
+              perf.dnsLookup || 0,
+              perf.tcpConnect || 0,
+              perf.ttfb || 0,
+              perf.response || 0,
+              perf.domContentLoaded || 0
+            ],
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      })
+
+      // Load Time Doughnut Chart
+      const loadTimeCtx = document.getElementById('loadTimeChart')
+      if (loadTimeChart) loadTimeChart.destroy()
+      
+      loadTimeChart = new Chart(loadTimeCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['DNS', 'TCP', 'TTFB', 'Response', 'DOM'],
+          datasets: [{
+            data: [
+              perf.dnsLookup || 0,
+              perf.tcpConnect || 0,
+              perf.ttfb || 0,
+              perf.response || 0,
+              perf.domContentLoaded || 0
+            ],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.6)',
+              'rgba(54, 162, 235, 0.6)',
+              'rgba(255, 206, 86, 0.6)',
+              'rgba(75, 192, 192, 0.6)',
+              'rgba(153, 102, 255, 0.6)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      })
+
+      // Resources Comparison Chart
+      const resourcesCtx = document.getElementById('resourcesChart')
+      if (resourcesChart) resourcesChart.destroy()
+      
+      const totalLoadTime = selectedMetric.real_load_time || selectedMetric.load_time
+      
+      resourcesChart = new Chart(resourcesCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Recursos', 'Tamaño (KB)', 'Tiempo (ms)'],
+          datasets: [{
+            label: 'Métricas',
+            data: [
+              selectedMetric.resource_count,
+              parseFloat(selectedMetric.total_size_kb),
+              totalLoadTime
+            ],
+            backgroundColor: [
+              'rgba(255, 159, 64, 0.6)',
+              'rgba(153, 102, 255, 0.6)',
+              'rgba(75, 192, 192, 0.6)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      })
+
+      const fileStats = await loadFileStats()
+      console.log("[v0] Procesando fileStats:", fileStats)
+      
+      if (fileStats && Array.isArray(fileStats) && fileStats.length > 0) {
+        // Gráfico circular de tipos de archivos (Cantidad)
+        const filesTypeCtx = document.getElementById('filesTypeChart')
+        if (filesTypeChart) filesTypeChart.destroy()
+        
+        const fileTypes = fileStats.map(f => f.file_type)
+        const fileCounts = fileStats.map(f => parseInt(f.count))
+        const fileTypeColors = [
+          'rgba(255, 99, 132, 0.6)',
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(255, 206, 86, 0.6)',
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(153, 102, 255, 0.6)',
+          'rgba(255, 159, 64, 0.6)',
+          'rgba(199, 199, 199, 0.6)',
+          'rgba(83, 102, 255, 0.6)',
+          'rgba(255, 99, 255, 0.6)',
+          'rgba(99, 255, 132, 0.6)'
+        ]
+        
+        filesTypeChart = new Chart(filesTypeCtx, {
+          type: 'pie',
+          data: {
+            labels: fileTypes,
+            datasets: [{
+              data: fileCounts,
+              backgroundColor: fileTypeColors.slice(0, fileTypes.length),
+              borderWidth: 2,
+              borderColor: '#fff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.parsed} archivos`
+                  }
+                }
+              }
+            }
+          }
+        })
+
+        // Gráfico circular de tamaño total por tipo
+        const filesSizeCtx = document.getElementById('filesSizeChart')
+        if (filesSizeChart) filesSizeChart.destroy()
+        
+        const fileSizes = fileStats.map(f => f.total_size || 0)
+        
+        filesSizeChart = new Chart(filesSizeCtx, {
+          type: 'doughnut',
+          data: {
+            labels: fileTypes,
+            datasets: [{
+              data: fileSizes,
+              backgroundColor: fileTypeColors.slice(0, fileTypes.length),
+              borderWidth: 2,
+              borderColor: '#fff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.parsed.toFixed(2)} KB`
+                  }
+                }
+              }
+            }
+          }
+        })
+      }
+    }
+
+    function getColorForMetric(value, goodThreshold, poorThreshold) {
+      if (!value || value === 0) return 'rgba(128, 128, 128, 0.6)'
+      if (value <= goodThreshold) return 'rgba(75, 192, 192, 0.6)'
+      if (value <= poorThreshold) return 'rgba(255, 206, 86, 0.6)'
+      return 'rgba(255, 99, 132, 0.6)'
+    }
+
+    window.selectMetric = function (id) {
+      selectedMetric = metrics.find((m) => m.id === id)
+      renderMetrics()
+    }
+
+    document.querySelectorAll(".nav-link").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tab = btn.dataset.tab
+
+        // Update buttons
+        document.querySelectorAll(".nav-link").forEach((b) => {
+          b.classList.remove("active")
+        })
+        btn.classList.add("active")
+
+        // Update content
+        document.querySelectorAll(".tab-content-item").forEach((content) => {
+          content.classList.add("d-none")
+        })
+        document.getElementById(`${tab}-tab`).classList.remove("d-none")
+      })
+    })
+
+    // Enter key on URL input
+    document.getElementById("urlInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        document.getElementById("addUrlBtn").click()
+      }
+    })
+    document.addEventListener("DOMContentLoaded", () => {
+  const perfTab = document.querySelector('[data-tab="performance"]')
+  const perfContent = document.getElementById("performance-tab")
+
+  if (perfTab && perfContent) {
+    perfTab.classList.add("active")
+    perfContent.classList.remove("d-none")
+  }
+})
   </script>
-</Layout>
+</body>
+</html>

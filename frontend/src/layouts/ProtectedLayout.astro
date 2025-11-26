@@ -1,0 +1,13 @@
+---
+const token = Astro.cookies.get('token')?.value || null;
+
+if (!token) {
+  Astro.redirect('/login');
+}
+
+import Layout from './Layout.astro';
+---
+
+<Layout>
+  <slot />
+</Layout>
