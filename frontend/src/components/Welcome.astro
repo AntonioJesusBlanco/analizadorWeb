@@ -5,17 +5,667 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-    <h1>{title}</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenido - Analizador Web</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    .hero-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4rem 0;
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: #667eea;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      margin-bottom: 1rem;
+    }
+    .code-block {
+      border-left: 4px solid #667eea;
+      padding: 1rem;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+    .tech-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      margin: 0.25rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-primary);
+    }
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: #002fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .accordion-button {
+      background-color: rgb(26, 30, 40) !important;
+      color: var(--text-primary);
+    }
+    .accordion-button:active {
+      color: var(--text-primary);
+    }
+    .accordion-button:not(.collapsed) {
+      background-color: rgb(26, 30, 40) !important;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
 
-    <form id="metrics-form">
-      <input
-        id="url-input"
-        type="text"
-        placeholder="Introduce una URL (https://...)"
-        required
-      />
-      <button id="analyze-btn" type="submit">Analizar</button>
-    </form>
+    
+  <!-- Hero Section -->
+  <section class="hero-section text-center">
+    <div class="container">
+      <h1 class="display-4 fw-bold mb-3"> Analizador Web de Métricas</h1>
+      <p class="lead mb-4">Sistema completo de análisis de rendimiento web con autenticación y visualización de datos en tiempo real</p>
+      <div class="d-flex gap-3 justify-content-center">
+        <a href="/login" class="btn btn-light btn-lg">Iniciar Sesión</a>
+        <a href="/register" class="btn btn-outline-light btn-lg">Registrarse</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What is this -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <h2 class="h3 fw-bold mb-4">📖 ¿Qué es este proyecto?</h2>
+          <p class="lead">
+            Este es un <strong>analizador web profesional</strong> que permite a los usuarios registrados analizar el rendimiento de cualquier sitio web mediante métricas avanzadas como Web Vitals (LCP, FID, CLS), tiempos de carga, recursos utilizados y mucho más.
+          </p>
+          <p>
+            El sistema captura automáticamente todos los archivos que componen una página web (HTML, CSS, JavaScript, imágenes, fuentes) y proporciona visualizaciones detalladas mediante gráficas interactivas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="py-5 ">
+    <div class="container">
+      <h2 class="h3 fw-bold text-center mb-5">✨ Características Principales</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="text-center">
+            <div class="feature-icon mx-auto">🔐</div>
+            <h3 class="h5 fw-bold">Autenticación Segura</h3>
+            <p class="">Sistema de registro y login con JWT y bcrypt para proteger tus datos</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center">
+            <div class="feature-icon mx-auto">📊</div>
+            <h3 class="h5 fw-bold">Métricas Web Vitals</h3>
+            <p class="">Captura LCP, FID, CLS, FCP, TTFB siguiendo estándares de Google</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center">
+            <div class="feature-icon mx-auto">📈</div>
+            <h3 class="h5 fw-bold">Visualización con Gráficas</h3>
+            <p class="">Gráficas interactivas con Chart.js para análisis visual de datos</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center">
+            <div class="feature-icon mx-auto">🗂️</div>
+            <h3 class="h5 fw-bold">Captura de Archivos</h3>
+            <p class="">Almacena todos los recursos de la página (JS, CSS, imágenes, fuentes)</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center">
+            <div class="feature-icon mx-auto">⏱️</div>
+            <h3 class="h5 fw-bold">Mediciones Automáticas</h3>
+            <p class="">Análisis periódico cada 6 horas de todas las URLs guardadas</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="text-center">
+            <div class="feature-icon mx-auto">🔍</div>
+            <h3 class="h5 fw-bold">Historial Completo</h3>
+            <p class="">Accede a todas tus mediciones históricas organizadas por fecha</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="h3 fw-bold text-center mb-5">🔧 ¿Cómo Funciona?</h2>
+      
+      <div class="row g-4">
+        <!-- Step 1 -->
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-start gap-3">
+                <div class="step-number flex-shrink-0">1</div>
+                <div>
+                  <h3 class="h5 fw-bold mb-2 text-white">Registro e Inicio de Sesión</h3>
+                  <p class="mb-2 text-white">El usuario se registra con un nombre de usuario y contraseña. El sistema:</p>
+                  <ul>
+                    <li class= "text-white">Cifra la contraseña con <strong>bcrypt</strong> (10 rondas de hashing)</li>
+                    <li class= "text-white">Almacena el usuario en PostgreSQL</li>
+                    <li class= "text-white">Al hacer login, genera un <strong>JWT token</strong> válido por 2 horas</li>
+                    <li class= "text-white">El token se guarda en localStorage y como cookie para mantener la sesión</li>
+                  </ul>
+                  <div class="code-block mt-2">
+                    <strong>POST</strong> /api/register → &#123; username, password &#125;<br>
+                    <strong>POST</strong> /api/login → devuelve &#123; token &#125;
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-start gap-3">
+                <div class="step-number flex-shrink-0">2</div>
+                <div>
+                  <h3 class="h5 fw-bold mb-2 text-white">Añadir URL para Analizar</h3>
+                  <p class="mb-2 text-white" >Desde el dashboard, el usuario introduce una URL (ej: https://google.com). El sistema:</p>
+                  <ul>
+                    <li class="text-white">Verifica el token JWT para autenticar la petición</li>
+                    <li class="text-white">Guarda la URL en la base de datos asociada al usuario</li>
+                    <li class="text-white">Inicia el proceso de medición automáticamente</li>
+                    <li class="text-white">Muestra un indicador de carga durante el análisis (hasta 30 segundos)</li>
+                  </ul>
+                  <div class="code-block mt-2">
+                    <strong>POST</strong> /api/urls → &#123; url &#125;<br>
+                    <strong>POST</strong> /api/metrics → &#123; url  &#125;(automático tras añadir)
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-start gap-3">
+                <div class="step-number flex-shrink-0">3</div>
+                <div>
+                  <h3 class="h5 fw-bold mb-2 text-white">Medición con Puppeteer</h3>
+                  <p class="mb-2 text-white">El servidor utiliza <strong>Puppeteer</strong> (navegador headless) para:</p>
+                  <ul>
+                    <li class="text-white">Abrir la URL en un navegador Chrome sin interfaz gráfica</li>
+                    <li class="text-white">Establecer viewport de 1366x768px para consistencia</li>
+                    <li class="text-white">Interceptar TODOS los archivos que se cargan (JS, CSS, imágenes, fuentes, etc.)</li>
+                    <li class="text-white">Capturar métricas de rendimiento usando la API <strong>web-vitals</strong></li>
+                    <li class="text-white">Simular interacciones (clicks) para capturar FID</li>
+                    <li class="text-white">Extraer el código HTML completo de la página</li>
+                  </ul>
+                  <div class="alert alert-info mt-2 mb-0">
+                    <strong>💡 Métricas capturadas:</strong> LCP (Largest Contentful Paint), FID (First Input Delay), CLS (Cumulative Layout Shift), FCP (First Contentful Paint), TTFB (Time to First Byte), DNS Lookup, TCP Connect, DOM Load Time
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-start gap-3">
+                <div class="step-number flex-shrink-0">4</div>
+                <div>
+                  <h3 class="h5 fw-bold mb-2 text-white">Almacenamiento en Base de Datos</h3>
+                  <p class="mb-2 text-white">Toda la información se guarda en <strong>PostgreSQL</strong> en tres tablas:</p>
+                  <ul>
+                    <li class="text-white"><strong>users</strong>: Información de usuarios y contraseñas cifradas</li>
+                    <li class="text-white"><strong>urls</strong>: URLs añadidas por cada usuario con timestamp</li>
+                    <li class="text-white"><strong>metrics</strong>: Todas las métricas de rendimiento por URL y fecha</li>
+                    <li class="text-white"><strong>files</strong>: Cada archivo capturado (nombre, tipo, contenido, tamaño, tiempo de carga)</li>
+                  </ul>
+                  <p class="mb-0">Esto permite mantener un historial completo de todas las mediciones realizadas.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-start gap-3">
+                <div class="step-number flex-shrink-0">5</div>
+                <div>
+                  <h3 class="h5 fw-bold mb-2 text-white">Visualización en el Dashboard</h3>
+                  <p class="mb-2 text-white" text-white>El usuario accede al dashboard donde puede ver:</p>
+                  <ul>
+                    <li class="text-white"><strong>Lista de URLs</strong> analizadas con fechas</li>
+                    <li class="text-white"><strong>Tarjetas resumen</strong>: Tiempo de carga, tamaño total, número de recursos, FCP</li>
+                    <li class="text-white"><strong>Pestañas organizadas</strong>:
+                      <ul>
+                        <li><strong>Web Vitals</strong>: LCP, FID, CLS, FCP, TTFB con badges de color según thresholds de Google</li>
+                        <li><strong>Performance</strong>: DNS, TCP, TTFB, Response, DOM Load detallados</li>
+                        <li><strong>Gráficas</strong>: Visualizaciones con Chart.js (barras, donut, líneas)</li>
+                        <li><strong>Recursos</strong>: Lista de todos los archivos capturados</li>
+                      </ul>
+                    </li>
+                    <li><strong>Nombre del usuario</strong> decodificado del JWT en el header</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="col-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-start gap-3">
+                <div class="step-number flex-shrink-0">6</div>
+                <div>
+                  <h3 class="h5 fw-bold mb-2 text-white" >Mediciones Automáticas Periódicas</h3>
+                  <p class="mb-2 text-white">El sistema tiene un <strong>cron job</strong> que se ejecuta cada <strong>6 horas</strong>:</p>
+                  <ul>
+                    <li class="text-white">Recorre todas las URLs guardadas en la base de datos</li>
+                    <li class="text-white">Realiza una nueva medición de cada URL automáticamente</li>
+                    <li class="text-white">Guarda los nuevos datos en la tabla metrics</li>
+                    <li class="text-white">Permite ver la evolución del rendimiento a lo largo del tiempo</li>
+                  </ul>
+                  <div class="alert alert-success mt-2 mb-0">
+                    <strong>✅ Ventaja:</strong> Puedes detectar degradaciones de rendimiento sin tener que medir manualmente
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section class="py-5 ">
+    <div class="container">
+      <h2 class="h3 fw-boldtext-center mb-4">🛠️ Tecnologías Utilizadas</h2>
+      
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="h5 fw-bold mb-3 text-white">⚙️ Backend (Node.js + Express)</h3>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="tech-badge ">Express.js</span>
+                <span class="tech-badge ">Puppeteer</span>
+                <span class="tech-badge ">PostgreSQL</span>
+                <span class="tech-badge ">JWT</span>
+                <span class="tech-badge ">bcrypt</span>
+                <span class="tech-badge ">cors</span>
+                <span class="tech-badge ">dotenv</span>
+              </div>
+              <p class="small text-white mb-2"><strong>Archivo:</strong> server.js (auth-middleware.ts)</p>
+              <ul class="small">
+                <li class="text-white"><strong>Express</strong>: Servidor HTTP y rutas de API</li>
+                <li class="text-white"><strong>Puppeteer</strong>: Navegador headless para medición de métricas</li>
+                <li class="text-white"><strong>PostgreSQL</strong>: Base de datos relacional para usuarios, URLs, métricas y archivos</li>
+                <li class="text-white"><strong>JWT</strong>: Autenticación con tokens seguros</li>
+                <li class="text-white"><strong>bcrypt</strong>: Cifrado de contraseñas con hashing</li>
+              </ul>
+              <p class="small text-white mb-2"><strong>Archivo:</strong> measure.js (measure-page.tsx)</p>
+              <ul class="small mb-0">
+                <li class="text-white">Lanza navegador Puppeteer en modo headless</li>
+                <li class="text-white">Intercepta respuestas de red para capturar archivos</li>
+                <li class="text-white">Inyecta librería web-vitals para métricas avanzadas</li>
+                <li class="text-white">Extrae HTML y datos de performance de la página</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="h5 fw-bold mb-3 text-white">🎨 Frontend (Astro + Bootstrap)</h3>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="tech-badge text-white">Astro</span>
+                <span class="tech-badge text-white">Bootstrap 5</span>
+                <span class="tech-badge text-white">Chart.js</span>
+                <span class="tech-badge text-white">JavaScript ES6+</span>
+                <span class="tech-badge text-white">Fetch API</span>
+              </div>
+              <p class="small text-white mb-2"><strong>Archivo:</strong> dashboard.astro (prerender.tsx)</p>
+              <ul class="small mb-0">
+                <li class="text-white"><strong>Astro</strong>: Framework moderno con SSR (Server-Side Rendering)</li>
+                <li class="text-white"><strong>Bootstrap 5</strong>: Sistema de diseño responsive con cards, nav-tabs, badges</li>
+                <li class="text-white"><strong>Chart.js</strong>: Librería de visualización de gráficas interactivas</li>
+                <li class="text-white"><strong>Fetch API</strong>: Comunicación con el backend via HTTP</li>
+                <li class="text-white"><strong>localStorage</strong>: Almacenamiento del token JWT</li>
+                <li class="text-white"><strong>Cookies</strong>: Persistencia de sesión del usuario</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-4">
+        <div class="card-body">
+          <h3 class="h5 fw-bold mb-3 text-white">🗄️ Estructura de Base de Datos</h3>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="code-block">
+                <strong>users</strong><br>
+                - id<br>
+                - username<br>
+                - password_hash<br>
+                - created_at
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="code-block">
+                <strong>urls</strong><br>
+                - id<br>
+                - url<br>
+                - user_id<br>
+                - created_at
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="code-block">
+                <strong>metrics</strong><br>
+                - id<br>
+                - url_id<br>
+                - user_id<br>
+                - fcp, lcp, fid, cls<br>
+                - performance (JSON)<br>
+                - web_vitals (JSON)<br>
+                - created_at
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="code-block">
+                <strong>files</strong><br>
+                - id<br>
+                - url_id<br>
+                - file_name<br>
+                - file_type<br>
+                - file_content<br>
+                - content_size_kb<br>
+                - real_load_time<br>
+                - created_at
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- API Documentation -->
+  <section class="py-5">
+    <div class="container">
+      <h2 class="h3 fw-bold text-center mb-4">📡 Documentación de la API</h2>
+      
+      <div class="accordion " id="apiAccordion">
+        <!-- Auth Endpoints -->
+        <div class="accordion-item bg-dark">
+          <h2 class="accordion-header">
+            <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#authEndpoints">
+              🔐 Endpoints de Autenticación (Públicos)
+            </button>
+          </h2>
+          <div id="authEndpoints" class="accordion-collapse collapse show" data-bs-parent="#apiAccordion">
+            <div class="accordion-body">
+              <div class="mb-3">
+                <div class="code-block">
+                  <strong>POST</strong> /api/register<br>
+                  Headers: <code>&#123; "username": "usuario", "password": "contraseña"  &#125;</code>
+                  Response: <code>&#123; "id": 1, "username": "usuario"  &#125;</code>
+                    </div>
+                <p class="small  mt-2 mb-0">Crea un nuevo usuario con contraseña cifrada.</p>
+              </div>
+              <div class="mb-3">
+                <div class="code-block">
+                  <strong>POST</strong> /api/login<br>
+                  Headers: <code>&#123; "username": "usuario", "password": "contraseña"  &#125;</code>
+                  Response: <code>&#123; "token": "eyJhbGciOiJIUzI1NiIs..."  &#125;</code>
+                </div>
+                <p class="small  mt-2 mb-0">Inicia sesión y devuelve un JWT válido por 2 horas.</p>
+              </div>
+              <div>
+                <div class="code-block">
+                  <strong>POST</strong> /api/logout<br>
+                  Response: <code>&#123; "message": "Sesión cerrada correctamente"  &#125;</code>
+                </div>
+                <p class="small  mt-2 mb-0">Cierra sesión (limpieza en el cliente).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- URL Endpoints -->
+        <div class="accordion-item bg-dark">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#urlEndpoints">
+              🔗 Endpoints de URLs (Protegidos)
+            </button>
+          </h2>
+          <div id="urlEndpoints" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
+            <div class="accordion-body">
+              <div class="alert alert-warning">
+                <strong>⚠️ Autenticación requerida:</strong> Todos estos endpoints requieren el header <code>Authorization: Bearer TOKEN</code>
+              </div>
+              <div class="mb-3">
+                <div class="code-block">
+                  <strong>POST</strong> /api/urls<br>
+                  Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
+                  Body: <code>&#123; url": "https://ejemplo.com" &#125;</code>
+                  Response: <code>&#123; "message": "URL añadida: https://ejemplo.com" &#125;</code>
+              </div>
+                <p class="small  mt-2 mb-0">Añade una nueva URL para el usuario autenticado.</p>
+              </div>
+              <div>
+                <div class="code-block">
+                  <strong>GET</strong> /api/urls<br>
+                  Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
+                  Response: <code>&#91;&#123; "id": 1, "url": "https://ejemplo.com", "user_id": 1, "created_at": "..." &#125;&#93;</code>
+                </div>
+                <p class="small  mt-2 mb-0">Obtiene todas las URLs del usuario.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Endpoints -->
+        <div class="accordion-item bg-dark">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#metricsEndpoints">
+              📊 Endpoints de Métricas (Protegidos)
+            </button>
+          </h2>
+          <div id="metricsEndpoints" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
+            <div class="accordion-body">
+              <div class="mb-3">
+                <div class="code-block">
+                  <strong>POST</strong> /api/metrics<br>
+                  Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
+                  Body: <code>&#123; url": "https://ejemplo.com" &#125;</code>
+                  Response: <code>&#123; "message": "✅ Métricas y archivos guardados", "filesCount": 25, "data":  &#123;...&#125; &#125;</code>
+                 
+              </div>
+                <p class="small  mt-2 mb-0">Inicia una medición completa de la URL con Puppeteer. Puede tardar hasta 30 segundos.</p>
+              </div>
+              <div class="mb-3">
+                <div class="code-block">
+                  <strong>GET</strong> /api/my-metrics<br>
+                  Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
+                  Response: <code>&#91;&#123; "id": 1, "url": "https://ejemplo.com", "fcp": 1200, "web_vitals": &#123;...&#125; ;, ...  &#125;&#93;</code>
+                 
+                </div>
+                <p class="small  mt-2 mb-0">Obtiene todas las métricas del usuario ordenadas por fecha.</p>
+              </div>
+              <div>
+                <div class="code-block">
+                  <strong>GET</strong> /api/metrics/:urlId<br>
+                   Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
+                  Response: <code>&#91;&#123; "id": 1, "url_id": 1, "fcp": 1200, ...  &#125;&#93;</code>
+                 
+                </div>
+                <p class="small  mt-2 mb-0">Obtiene todas las métricas históricas de una URL específica.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Files Endpoints -->
+        <div class="accordion-item bg-dark">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filesEndpoints">
+              📁 Endpoints de Archivos (Protegidos)
+            </button>
+          </h2>
+          <div id="filesEndpoints" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
+            <div class="accordion-body">
+              <div class="mb-3">
+                <div class="code-block">
+                  <strong>GET</strong> /api/files/:urlId<br>
+                   Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
+                  Response: <code>&#91;&#123; "id": 1, "file_name": "app.js", "file_type": "javascript", "content_size_kb": 45.2 &#125;&#93;</code>
+                 </div>
+                <p class="small  mt-2 mb-0">Lista todos los archivos capturados de una URL.</p>
+              </div>
+              <div class="mb-3">
+                <div class="code-block">
+                  <strong>GET</strong> /api/files/stats/:urlId<br>
+                  Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
+                  Response: <code>&#91;&#123; "file_type": "javascript", "count": 5, "total_size": 120.5, "avg_load_time": 250 &#125;&#93;</code>
+
+                </div>
+                <p class="small  mt-2 mb-0">Estadísticas agrupadas por tipo de archivo.</p>
+              </div>
+              <div>
+                <div class="code-block">
+                  <strong>GET</strong> /api/files/content/:fileId<br>
+                    <code>&#123; "Authorization": "Bearer TOKEN"  &#125;</code>
+
+                  Response: 
+                  <code>&#123; "name": "app.js", "type": "javascript", "content": "const app = ..." &#125;</code>
+                </div>
+                <p class="small  mt-2 mb-0">Obtiene el contenido completo de un archivo específico.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Getting Started -->
+  <section class="py-5 ">
+    <div class="container">
+      <h2 class="h3 fw-bold text-center mb-4">🚀 Cómo Empezar</h2>
+      
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="h5 fw-bold mb-3 text-white">1️⃣ Configurar el Backend</h3>
+              <div class="code-block mb-2">
+                # Instalar dependencias<br>
+                npm install express puppeteer pg bcrypt jsonwebtoken cors dotenv
+              </div>
+              <div class="code-block mb-2">
+                # Crear archivo .env<br>
+                DATABASE_URL=postgresql://user:password@localhost:5432/dbname<br>
+                JWT_SECRET=tuClaveSecreta<br>
+                PORT=3000
+              </div>
+              <div class="code-block mb-3">
+                # Iniciar servidor<br>
+                node server.js
+              </div>
+              <p class="small text-white mb-0">El servidor estará disponible en <strong>http://localhost:3000</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h3 class="h5 fw-bold mb-3 text-white">2️⃣ Configurar el Frontend</h3>
+              <div class="code-block mb-2">
+                # Instalar dependencias de Astro<br>
+                npm install astro
+              </div>
+              <div class="code-block mb-2">
+                # Asegurarse de que el API_URL apunta a tu backend<br>
+                const API_URL = "http://localhost:3000/api"
+              </div>
+              <div class="code-block mb-3">
+                # Iniciar proyecto Astro<br>
+                npm run dev
+              </div>
+              <p class="small text-white mb-0">El frontend estará disponible en <strong>http://localhost:4321</strong></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-4">
+        <div class="card-body">
+          <h3 class="h5 fw-bold mb-3 text-white">3️⃣ Usar la Aplicación</h3>
+          <ol class="mb-0">
+            <!-- <li>Accede a <code>http://localhost:4321/register</code> y crea una cuenta</li>
+            <li>Inicia sesión en <code>http://localhost:4321/login</code></li> -->
+            <li class="text-white">En el dashboard, introduce una URL (ej: https://google.com) y haz clic en "Agregar"</li>
+            <li class="text-white">Espera mientras el sistema analiza la página (hasta 30 segundos)</li>
+            <li class="text-white">Haz clic en "Cargar Métricas" para ver los resultados</li>
+            <li class="text-white">Explora las pestañas de Web Vitals, Performance, Gráficas y Recursos</li>
+            <li class="text-white">Las mediciones automáticas se ejecutarán cada 6 horas</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+      <p class="mb-2">⚡ Analizador Web de Métricas</p>
+      <p class="small  mb-0">Sistema profesional de análisis de rendimiento web</p>
+    </div>
+  </footer>
+
 
     <div id="output"></div>
 
@@ -68,4 +718,6 @@ import Layout from '../layouts/Layout.astro';
         }
       });
     </script>
+</body>
+</html>
 </Layout>

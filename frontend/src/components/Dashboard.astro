@@ -1,6 +1,6 @@
 ---
 export const prerender = false;
-
+import Layout from '../layouts/Layout.astro';
 const API_URL = "http://localhost:3000/api"
 
 let token = null;
@@ -10,27 +10,36 @@ if (!Astro.cookies.has("token")) {
 
 token = Astro.cookies.get("token")?.value;
 ---
-
+<Layout>
 <html lang="es">
 <head>
+  <style>
+   
+    .list-group-item {
+      background-color: rgba(26, 30, 40, 0.6);
+      border-color: #2e2e3f;
+      color: white;
+    }
+  </style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard de Métricas</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/public/style.css" />
 </head>
 <body>
 
   <!-- Bootstrap header replacing Tailwind classes -->
-  <header class="border-bottom bg-white pt-5 mt-3">
+  <header class=" pt-5 mt-3">
     <div class="container py-3">
       <div class="d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center gap-2">
-          <svg width="24" height="24" fill="black" stroke="black" viewBox="0 0 24 24">
+          <svg width="24" height="24" fill="white" stroke="white" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
           </svg>
-          <h1 class="h3 mb-0 text-black">Dashboard de Métricas</h1>
+          <h1 class="h3 mb-0 text-white">Dashboard de Métricas</h1>
           <!-- Added username display -->
           <span id="usernameDisplay" class="badge bg-primary ms-3"></span>
         </div>
@@ -45,8 +54,8 @@ token = Astro.cookies.get("token")?.value;
     <!-- Add URL Section with Bootstrap cards and forms -->
     <div class="card shadow-sm mb-4">
       <div class="card-body">
-        <h2 class="h5 card-title">Añadir URL</h2>
-        <p class="text-muted small mb-3">Introduce una URL para analizar sus métricas de rendimiento</p>
+        <h2 class="h5 card-title text-white">Añadir URL</h2>
+        <p class=" small mb-3 text-white">Introduce una URL para analizar sus métricas de rendimiento</p>
         <div class="d-flex gap-2">
           <input 
             type="text" 
@@ -55,20 +64,20 @@ token = Astro.cookies.get("token")?.value;
             class="form-control"
           />
           <!-- Added loading state to button -->
-          <button id="addUrlBtn" class="btn btn-primary d-flex align-items-center gap-2" style="min-width: 120px;">
+          <button id="addUrlBtn" class="btn btn-primary d-flex align-items-center gap-2 text-white" style="min-width: 120px;">
             <span id="addBtnText">Agregar</span>
             <div id="addBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status">
-              <span class="visually-hidden">Cargando...</span>
+              <span class="visually-hidden text-white">Cargando...</span>
             </div>
           </button>
         </div>
         <!-- Added loading message below input -->
         <div id="addingMetricMessage" class="d-none mt-3">
-          <div class="alert alert-info d-flex align-items-center mb-0" role="alert">
+          <div class="alert alert-info d-flex align-items-center mb-0 text-white" role="alert">
             <div class="spinner-border spinner-border-sm me-2" role="status">
-              <span class="visually-hidden">Cargando...</span>
+              <span class="visually-hidden text-white">Cargando...</span>
             </div>
-            <div>
+            <div class=" text-white">
               <strong>Analizando URL...</strong> Esto puede tardar hasta 30 segundos mientras capturamos las métricas de rendimiento.
             </div>
           </div>
@@ -77,7 +86,7 @@ token = Astro.cookies.get("token")?.value;
     </div>
 
     <!-- Load Metrics Button -->
-    <button id="loadMetricsBtn" class="btn btn-success w-100 mb-4">
+    <button id="loadMetricsBtn" class="btn btn-success w-100 mb-4  text-white">
       Cargar Métricas
     </button>
 
@@ -86,7 +95,7 @@ token = Astro.cookies.get("token")?.value;
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Cargando...</span>
       </div>
-      <p class="mt-3 text-muted">Cargando métricas...</p>
+      <p class="mt-3 ">Cargando métricas...</p>
     </div>
 
     <!-- Empty State -->
@@ -95,8 +104,8 @@ token = Astro.cookies.get("token")?.value;
         <svg width="48" height="48" class="text-secondary mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
-        <h3 class="h5">No hay métricas disponibles</h3>
-        <p class="text-muted small">Añade una URL y haz clic en "Cargar Métricas" para ver los resultados</p>
+        <h3 class="h5  text-white">No hay métricas disponibles</h3>
+        <p class=" small  text-white">Añade una URL y haz clic en "Cargar Métricas" para ver los resultados</p>
       </div>
     </div>
 
@@ -107,9 +116,9 @@ token = Astro.cookies.get("token")?.value;
         <div class="col-lg-3">
           <div class="card shadow-sm">
             <div class="card-body">
-              <h3 class="h6 fw-bold mb-2">URLs Analizadas</h3>
-              <p id="urlCount" class="small text-muted mb-3">0 URLs</p>
-              <div id="urlsList" class="d-flex flex-column gap-2"></div>
+              <h3 class="h6  mb-2 text-white">URLs Analizadas</h3>
+              <p id="urlCount" class="small  text-white mb-3">0 URLs</p>
+              <div id="urlsList" class="d-flex flex-column gap-2 text-white"></div>
             </div>
           </div>
         </div>
@@ -121,32 +130,32 @@ token = Astro.cookies.get("token")?.value;
             <div class="col-md-3">
               <div class="card shadow-sm">
                 <div class="card-body">
-                  <p class="small text-muted mb-1">Tiempo de Carga</p>
-                  <p id="loadTime" class="h4 mb-0">-</p>
+                  <p class="small text-white mb-1">Tiempo de Carga</p>
+                  <p id="loadTime" class="h4 mb-0 text-white">-</p>
                 </div>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card shadow-sm">
                 <div class="card-body">
-                  <p class="small text-muted mb-1">Tamaño Total</p>
-                  <p id="totalSize" class="h4 mb-0">-</p>
+                  <p class="small text-white mb-1">Tamaño Total</p>
+                  <p id="totalSize" class="h4 mb-0 text-white">-</p>
                 </div>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card shadow-sm">
                 <div class="card-body">
-                  <p class="small text-muted mb-1">Recursos</p>
-                  <p id="resourceCount" class="h4 mb-0">-</p>
+                  <p class="small text-white mb-1">Recursos</p>
+                  <p id="resourceCount" class="h4 mb-0 text-white">-</p>
                 </div>
               </div>
             </div>
             <div class="col-md-3">
               <div class="card shadow-sm">
                 <div class="card-body">
-                  <p class="small text-muted mb-1">FCP</p>
-                  <p id="fcpValue" class="h4 mb-0">-</p>
+                  <p class="small text-white mb-1">FCP</p>
+                  <p id="fcpValue" class="h4 mb-0 text-white">-</p>
                 </div>
               </div>
             </div>
@@ -184,8 +193,12 @@ token = Astro.cookies.get("token")?.value;
 
               <!-- Performance Tab -->
               <div id="performance-tab" class="tab-content-item d-none">
-                <h3 class="h6 fw-bold mb-3">Métricas de Performance</h3>
-                <div class="list-group list-group-flush">
+                <h3 class="h6 fw-bold mb-3 text-white">Métricas de Performance</h3>
+                <div class="list-group list-group-flush ">
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span class="small">FCP</span>
+                    <span id="perf-fcp" class="badge bg-light text-dark">- ms</span>
+                  </div>
                   <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                     <span class="small">DNS Lookup</span>
                     <span id="perf-dns" class="badge bg-light text-dark">- ms</span>
@@ -215,13 +228,13 @@ token = Astro.cookies.get("token")?.value;
 
               <!-- Added Charts Tab with Chart.js visualizations -->
               <div id="charts-tab" class="tab-content-item d-none">
-                <h3 class="h6 fw-bold mb-3">Visualización de Métricas</h3>
+                <h3 class="h6 fw-bold mb-3 text-white">Visualización de Métricas</h3>
                 <div class="row g-3">
                   
                   <div class="col-12">
                     <div class="card border">
                       <div class="card-body">
-                        <h5 class="card-title h6">Desglose de Performance (ms)</h5>
+                        <h5 class="card-title h6 text-white">Desglose de Performance (ms)</h5>
                         <canvas id="performanceChart" height="80"></canvas>
                       </div>
                     </div>
@@ -229,7 +242,7 @@ token = Astro.cookies.get("token")?.value;
                   <div class="col-md-6">
                     <div class="card border">
                       <div class="card-body">
-                        <h5 class="card-title h6">Distribución de Tiempo de Carga</h5>
+                        <h5 class="card-title h6 text-white">Distribución de Tiempo de Carga</h5>
                         <canvas id="loadTimeChart"></canvas>
                       </div>
                     </div>
@@ -237,7 +250,7 @@ token = Astro.cookies.get("token")?.value;
                   <div class="col-md-6">
                     <div class="card border">
                       <div class="card-body">
-                        <h5 class="card-title h6">Comparación de Recursos</h5>
+                        <h5 class="card-title h6 text-white">Comparación de Recursos</h5>
                         <canvas id="resourcesChart"></canvas>
                       </div>
                     </div>
@@ -246,7 +259,7 @@ token = Astro.cookies.get("token")?.value;
                   <div class="col-md-6">
                     <div class="card border">
                       <div class="card-body">
-                        <h5 class="card-title h6">Distribución de Archivos por Tipo</h5>
+                        <h5 class="card-title h6 text-white">Distribución de Archivos por Tipo</h5>
                         <canvas id="filesTypeChart"></canvas>
                       </div>
                     </div>
@@ -254,7 +267,7 @@ token = Astro.cookies.get("token")?.value;
                   <div class="col-md-6">
                     <div class="card border">
                       <div class="card-body">
-                        <h5 class="card-title h6">Tamaño Total por Tipo de Archivo</h5>
+                        <h5 class="card-title h6 text-white">Tamaño Total por Tipo de Archivo</h5>
                         <canvas id="filesSizeChart"></canvas>
                       </div>
                     </div>
@@ -264,12 +277,11 @@ token = Astro.cookies.get("token")?.value;
 
               <!-- Resources Tab -->
               <div id="resources-tab" class="tab-content-item d-none">
-                <h3 class="h6 fw-bold mb-3">Recursos Cargados</h3>
-                <div class="small text-muted mb-2">
-                  Los recursos se han registrado durante la carga de la página
+                <h3 class="h6 fw-bold mb-3 text-white">Recursos Cargados</h3>
+                <div class="small text-white mb-2">
+                  Los recursos que se han registrado apareceran aqui
                 </div>
-                <div id="resourcesList" class="small text-muted fst-italic">
-                  Nota: Los detalles específicos de recursos no están disponibles en la API actual.
+                <div id="resourcesList" class="small text-white fst-italic">
                 </div>
               </div>
             </div>
@@ -297,7 +309,7 @@ token = Astro.cookies.get("token")?.value;
     async function loadUsername() {
       try {
         if (!token) {
-          console.log('[v0] No token found')
+          console.log('Token no encontrado')
           document.getElementById('usernameDisplay').textContent = ''
           return
         }
@@ -317,7 +329,7 @@ token = Astro.cookies.get("token")?.value;
     }
 
     async function initializeDashboard() {
-      console.log('[v0] Initializing dashboard...')
+      console.log('Inicializando dashboard...')
       loadUsername()
       // Wait a bit for DOM to be ready, then load metrics
       setTimeout(() => {
@@ -514,6 +526,7 @@ token = Astro.cookies.get("token")?.value;
       document.getElementById("perf-dns").textContent = `${performance.dnsLookup?.toFixed(2) || 0} ms`
       document.getElementById("perf-tcp").textContent = `${performance.tcpConnect?.toFixed(2) || 0} ms`
       document.getElementById("perf-ttfb").textContent = `${performance.ttfb?.toFixed(2) || 0} ms`
+      document.getElementById("perf-fcp").textContent = `${webVitals.FCP?.toFixed(2) || 0} ms`
       document.getElementById("perf-response").textContent = `${performance.response?.toFixed(2) || 0} ms`
       document.getElementById("perf-dom").textContent = `${performance.domContentLoaded?.toFixed(2) || 0} ms`
       document.getElementById("perf-total").textContent = `${performance.totalLoad?.toFixed(2) || 0} ms`
@@ -559,7 +572,7 @@ token = Astro.cookies.get("token")?.value;
       performanceChart = new Chart(performanceCtx, {
         type: 'bar',
         data: {
-          labels: ['FCP (ms)', 'TTFB (ms)','DNS', 'TCP', 'TTFB', 'Response', 'DOM Load'],
+          labels: ['FCP (ms)', 'TTFB','DNS', 'TCP' , 'Response', 'DOM Load'],
           datasets: [{
             label: 'Tiempo (ms)',
             data: [
@@ -567,7 +580,6 @@ token = Astro.cookies.get("token")?.value;
               vitals.TTFB || 0,
               perf.dnsLookup || 0,
               perf.tcpConnect || 0,
-              perf.ttfb || 0,
               perf.response || 0,
               perf.domContentLoaded || 0
             ],
@@ -793,3 +805,4 @@ token = Astro.cookies.get("token")?.value;
   </script>
 </body>
 </html>
+</Layout>
