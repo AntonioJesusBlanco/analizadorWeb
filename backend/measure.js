@@ -1,12 +1,13 @@
+// Dentro de measure.js
 import puppeteer from "puppeteer";
-import fs from "fs/promises"; 
-import path from "path";
+import fs from "fs/promises"; // Módulo nativo para leer archivos
+import path from "path";       // Módulo nativo para construir rutas
 
-// La única ubicación que siempre es accesible y contiene el binario
+// Ubicación estándar de caché en Render que sabemos que existe
 const PUPPETEER_CACHE_DIR = "/opt/render/.cache/puppeteer";
 
 async function getExecutablePath() {
-    // Si la variable de entorno estuviera establecida (aunque falle en Render)
+    // Si la variable de entorno funciona por casualidad, la usamos (aunque es improbable)
     if (process.env.PUPPETEER_EXECUTABLE_PATH) {
         return process.env.PUPPETEER_EXECUTABLE_PATH;
     }
@@ -14,20 +15,21 @@ async function getExecutablePath() {
     try {
         const chromeCacheDir = path.join(PUPPETEER_CACHE_DIR, 'chrome');
         
-        // Lee el contenido para encontrar la carpeta de versión (ej: 'linux-143.0.7499.40')
+        // 1. Leer el contenido de la caché para encontrar la carpeta de versión
         const contents = await fs.readdir(chromeCacheDir);
+        
+        // 2. Buscar la carpeta que empieza por 'linux-' (ej: linux-143.0.7499.40)
         const versionDir = contents.find(name => name.startsWith('linux-'));
 
         if (versionDir) {
-            // Construye la ruta absoluta y correcta
+            // 3. Construir la ruta absoluta y correcta
             return path.join(chromeCacheDir, versionDir, 'chrome-linux64', 'chrome');
         }
     } catch (e) {
-        // Esto captura errores si el directorio no existe o falla la lectura
-        console.error("Error crítico: Falló la búsqueda dinámica de Chrome:", e.message);
+        console.error("Error al buscar el binario de Chrome de forma dinámica:", e.message);
     }
     
-    // Fallback inútil (solo para lanzar el error si todo falla)
+    // Fallback: Si todo falla, devuelve la ruta que lanza el error original.
     return "/usr/bin/chromium-browser"; 
 }
 
@@ -36,8 +38,8 @@ export async function measurePage(url) {
  
     const finalExecutablePath = await getExecutablePath();
     
+    // Si la búsqueda falla, la aplicación lanzará el error de "Browser not found"
     if (finalExecutablePath.includes("chromium-browser")) {
-        // Lanzamos el error que estabas viendo antes
         throw new Error(`Could not find Chrome. The configured executablePath (${finalExecutablePath}) failed.`);
     }
 
@@ -45,9 +47,10 @@ export async function measurePage(url) {
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: finalExecutablePath, // ¡Esta es la clave!
+      executablePath: finalExecutablePath, // ¡Esta es la ruta dinámica y correcta!
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
     })
+    
 
 
   const page = await browser.newPage()
