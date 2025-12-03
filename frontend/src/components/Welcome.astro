@@ -15,7 +15,6 @@ import Layout from '../layouts/Layout.astro';
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <style>
     .hero-section {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 4rem 0;
     }
@@ -60,17 +59,20 @@ import Layout from '../layouts/Layout.astro';
       font-weight: bold;
       font-size: 1.2rem;
     }
-    .accordion-button {
-      background-color: rgb(26, 30, 40) !important;
-      color: var(--text-primary);
-    }
-    .accordion-button:active {
-      color: var(--text-primary);
-    }
-    .accordion-button:not(.collapsed) {
-      background-color: rgb(26, 30, 40) !important;
-      color: var(--text-primary);
-    }
+    .accordion-button,
+.accordion-button:focus,
+.accordion-button:not(.collapsed) {
+  background: linear-gradient(
+    to right, 
+    rgba(0, 72, 255, 0.164),
+    rgba(255, 0, 76, 0.13)
+  ) !important;
+
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+}
+
   </style>
 </head>
 <body>
@@ -108,7 +110,7 @@ import Layout from '../layouts/Layout.astro';
   <!-- Features -->
   <section class="py-5 ">
     <div class="container">
-      <h2 class="h3 fw-bold text-center mb-5">✨ Características Principales</h2>
+      <h2 class="h3 fw-bold text-center mb-5"> Características Principales</h2>
       <div class="row g-4">
         <div class="col-md-4">
           <div class="text-center">
@@ -159,7 +161,7 @@ import Layout from '../layouts/Layout.astro';
   <!-- How it Works -->
   <section class="py-5">
     <div class="container">
-      <h2 class="h3 fw-bold text-center mb-5">🔧 ¿Cómo Funciona?</h2>
+      <h2 class="h3 fw-bold text-center mb-5">¿Cómo Funciona?</h2>
       
       <div class="row g-4">
         <!-- Step 1 -->
@@ -172,7 +174,7 @@ import Layout from '../layouts/Layout.astro';
                   <h3 class="h5 fw-bold mb-2 text-white">Registro e Inicio de Sesión</h3>
                   <p class="mb-2 text-white">El usuario se registra con un nombre de usuario y contraseña. El sistema:</p>
                   <ul>
-                    <li class= "text-white">Cifra la contraseña con <strong>bcrypt</strong> (10 rondas de hashing)</li>
+                    <li class= "text-white">Cifra la contraseña con <strong>bcrypt</strong></li>
                     <li class= "text-white">Almacena el usuario en PostgreSQL</li>
                     <li class= "text-white">Al hacer login, genera un <strong>JWT token</strong> válido por 2 horas</li>
                     <li class= "text-white">El token se guarda en localStorage y como cookie para mantener la sesión</li>
@@ -230,7 +232,7 @@ import Layout from '../layouts/Layout.astro';
                     <li class="text-white">Extraer el código HTML completo de la página</li>
                   </ul>
                   <div class="alert alert-info mt-2 mb-0">
-                    <strong>💡 Métricas capturadas:</strong> LCP (Largest Contentful Paint), FID (First Input Delay), CLS (Cumulative Layout Shift), FCP (First Contentful Paint), TTFB (Time to First Byte), DNS Lookup, TCP Connect, DOM Load Time
+                    <strong> Métricas capturadas:</strong> LCP (Largest Contentful Paint), FID (First Input Delay), CLS (Cumulative Layout Shift), FCP (First Contentful Paint), TTFB (Time to First Byte), DNS Lookup, TCP Connect, DOM Load Time
                   </div>
                 </div>
               </div>
@@ -304,7 +306,7 @@ import Layout from '../layouts/Layout.astro';
                     <li class="text-white">Permite ver la evolución del rendimiento a lo largo del tiempo</li>
                   </ul>
                   <div class="alert alert-success mt-2 mb-0">
-                    <strong>✅ Ventaja:</strong> Puedes detectar degradaciones de rendimiento sin tener que medir manualmente
+                    <strong> Ventaja:</strong> Puedes detectar degradaciones de rendimiento sin tener que medir manualmente
                   </div>
                 </div>
               </div>
@@ -318,13 +320,13 @@ import Layout from '../layouts/Layout.astro';
   <!-- Tech Stack -->
   <section class="py-5 ">
     <div class="container">
-      <h2 class="h3 fw-boldtext-center mb-4">🛠️ Tecnologías Utilizadas</h2>
+      <h2 class="h3 fw-boldtext-center mb-4">Tecnologías Utilizadas</h2>
       
       <div class="row g-4">
         <div class="col-md-6">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <h3 class="h5 fw-bold mb-3 text-white">⚙️ Backend (Node.js + Express)</h3>
+              <h3 class="h5 fw-bold mb-3 text-white">Backend (Node.js + Express)</h3>
               <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="tech-badge ">Express.js</span>
                 <span class="tech-badge ">Puppeteer</span>
@@ -356,7 +358,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="col-md-6">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <h3 class="h5 fw-bold mb-3 text-white">🎨 Frontend (Astro + Bootstrap)</h3>
+              <h3 class="h5 fw-bold mb-3 text-white">Frontend (Astro + Bootstrap)</h3>
               <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="tech-badge text-white">Astro</span>
                 <span class="tech-badge text-white">Bootstrap 5</span>
@@ -380,7 +382,7 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="card shadow-sm mt-4">
         <div class="card-body">
-          <h3 class="h5 fw-bold mb-3 text-white">🗄️ Estructura de Base de Datos</h3>
+          <h3 class="h5 fw-bold mb-3 text-white">Estructura de Base de Datos</h3>
           <div class="row g-3">
             <div class="col-md-3">
               <div class="code-block">
@@ -434,14 +436,14 @@ import Layout from '../layouts/Layout.astro';
   <!-- API Documentation -->
   <section class="py-5">
     <div class="container">
-      <h2 class="h3 fw-bold text-center mb-4">📡 Documentación de la API</h2>
+      <h2 class="h3 fw-bold text-center mb-4">Documentación de la API</h2>
       
       <div class="accordion " id="apiAccordion">
         <!-- Auth Endpoints -->
         <div class="accordion-item bg-dark">
           <h2 class="accordion-header">
             <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#authEndpoints">
-              🔐 Endpoints de Autenticación (Públicos)
+              Endpoints de Autenticación (Públicos)
             </button>
           </h2>
           <div id="authEndpoints" class="accordion-collapse collapse show" data-bs-parent="#apiAccordion">
@@ -477,13 +479,13 @@ import Layout from '../layouts/Layout.astro';
         <div class="accordion-item bg-dark">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#urlEndpoints">
-              🔗 Endpoints de URLs (Protegidos)
+               Endpoints de URLs (Protegidos)
             </button>
           </h2>
           <div id="urlEndpoints" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
             <div class="accordion-body">
               <div class="alert alert-warning">
-                <strong>⚠️ Autenticación requerida:</strong> Todos estos endpoints requieren el header <code>Authorization: Bearer TOKEN</code>
+                <strong> Autenticación requerida:</strong> Todos estos endpoints requieren el header <code>Authorization: Bearer TOKEN</code>
               </div>
               <div class="mb-3">
                 <div class="code-block">
@@ -510,7 +512,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="accordion-item bg-dark">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#metricsEndpoints">
-              📊 Endpoints de Métricas (Protegidos)
+              Endpoints de Métricas (Protegidos)
             </button>
           </h2>
           <div id="metricsEndpoints" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
@@ -520,7 +522,7 @@ import Layout from '../layouts/Layout.astro';
                   <strong>POST</strong> /api/metrics<br>
                   Headers: <code>&#123; "Authorization": "Bearer TOKEN" &#125;</code>
                   Body: <code>&#123; url": "https://ejemplo.com" &#125;</code>
-                  Response: <code>&#123; "message": "✅ Métricas y archivos guardados", "filesCount": 25, "data":  &#123;...&#125; &#125;</code>
+                  Response: <code>&#123; "message": " Métricas y archivos guardados", "filesCount": 25, "data":  &#123;...&#125; &#125;</code>
                  
               </div>
                 <p class="small  mt-2 mb-0">Inicia una medición completa de la URL con Puppeteer. Puede tardar hasta 30 segundos.</p>
@@ -551,7 +553,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="accordion-item bg-dark">
           <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filesEndpoints">
-              📁 Endpoints de Archivos (Protegidos)
+               Endpoints de Archivos (Protegidos)
             </button>
           </h2>
           <div id="filesEndpoints" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
@@ -593,13 +595,13 @@ import Layout from '../layouts/Layout.astro';
   <!-- Getting Started -->
   <section class="py-5 ">
     <div class="container">
-      <h2 class="h3 fw-bold text-center mb-4">🚀 Cómo Empezar</h2>
+      <h2 class="h3 fw-bold text-center mb-4"> Cómo Empezar</h2>
       
       <div class="row g-4">
         <div class="col-lg-6">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <h3 class="h5 fw-bold mb-3 text-white">1️⃣ Configurar el Backend</h3>
+              <h3 class="h5 fw-bold mb-3 text-white">I. Configurar el Backend</h3>
               <div class="code-block mb-2">
                 # Instalar dependencias<br>
                 npm install express puppeteer pg bcrypt jsonwebtoken cors dotenv
@@ -622,7 +624,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="col-lg-6">
           <div class="card shadow-sm h-100">
             <div class="card-body">
-              <h3 class="h5 fw-bold mb-3 text-white">2️⃣ Configurar el Frontend</h3>
+              <h3 class="h5 fw-bold mb-3 text-white">II. Configurar el Frontend</h3>
               <div class="code-block mb-2">
                 # Instalar dependencias de Astro<br>
                 npm install astro
@@ -643,7 +645,7 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="card shadow-sm mt-4">
         <div class="card-body">
-          <h3 class="h5 fw-bold mb-3 text-white">3️⃣ Usar la Aplicación</h3>
+          <h3 class="h5 fw-bold mb-3 text-white">III. Usar la Aplicación</h3>
           <ol class="mb-0">
             <!-- <li>Accede a <code>http://localhost:4321/register</code> y crea una cuenta</li>
             <li>Inicia sesión en <code>http://localhost:4321/login</code></li> -->
@@ -661,7 +663,7 @@ import Layout from '../layouts/Layout.astro';
   <!-- Footer -->
   <footer class="bg-dark text-white py-4">
     <div class="container text-center">
-      <p class="mb-2">⚡ Analizador Web de Métricas</p>
+      <p class="mb-2"> Analizador Web de Métricas</p>
       <p class="small  mb-0">Sistema profesional de análisis de rendimiento web</p>
     </div>
   </footer>
@@ -695,7 +697,7 @@ import Layout from '../layouts/Layout.astro';
           const data = await res.json();
 
           if (data.error) {
-            output.innerHTML = '<p class="error">❌ ' + data.message + "</p>";
+            output.innerHTML = '<p class="error"> ' + data.message + "</p>";
           } else {
             output.innerHTML = `
               <h2>Resultados para: ${data.url}</h2>

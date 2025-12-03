@@ -1,10 +1,13 @@
-import puppeteer from "puppeteer"
+import puppeteer from "puppeteer-core";
+
 
 export async function measurePage(url) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-  })
+  
+const browser = await puppeteer.launch({
+  headless: true,
+  executablePath: "/usr/bin/chromium-browser",
+  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+})
 
   const page = await browser.newPage()
   await page.setViewport({ width: 1366, height: 768 })
@@ -16,7 +19,6 @@ export async function measurePage(url) {
     try {
       const responseUrl = response.url()
       const contentType = response.headers()["content-type"] || ""
-      const contentLength = response.headers()["content-length"]
 
       // Capturar todos los archivos excepto documentos HTML principales y sourcemaps
       const isHtml = contentType.includes("text/html")
@@ -25,7 +27,7 @@ export async function measurePage(url) {
       if (!isHtml && !isSourceMap) {
         try {
           const buffer = await response.buffer()
-          const fileName = responseUrl.split("/").pop() || "unknown"
+          const fileName = responseUrl.split("/").pop() || "desconocido"
           const fileType = getFileType(contentType, fileName)
 
           // Solo guardar contenido de texto/código, no binarios
@@ -42,16 +44,13 @@ export async function measurePage(url) {
             contentType: contentType,
             url: responseUrl,
           })
-
-          console.log(
-            `[v0] Archivo capturado: ${fileName} | Tipo: ${fileType} | ${resourceMap.get(responseUrl).size} KB`,
-          )
+          console.log(` Archivo capturado: ${fileName}, tipo: ${fileType}, ${resourceMap.get(responseUrl).size} KB`,)
         } catch (bufferErr) {
-          console.warn(`[v0] No se pudo leer buffer de ${responseUrl}:`, bufferErr.message)
+          console.warn(` No se pudo leer buffer de ${responseUrl}:`, bufferErr.message)
         }
       }
     } catch (err) {
-      console.warn(`[v0] Error procesando respuesta:`, err.message)
+      console.warn(` Error procesando respuesta:`, err.message)
     }
   })
 
@@ -83,7 +82,7 @@ export async function measurePage(url) {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 })
     await page.waitForSelector("main", { timeout: 10000 }).catch(() => {})
   } catch (err) {
-    console.warn("⚠️ Navegación incompleta:", err.message)
+    console.warn(" Error:", err.message)
   }
 
   await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -98,7 +97,7 @@ export async function measurePage(url) {
     return null
   })
 
-  const perf = await page.evaluate(() => {
+    const perf = await page.evaluate(() => {
     const [nav] = performance.getEntriesByType("navigation")
     if (!nav) return {}
     return {
@@ -115,29 +114,25 @@ export async function measurePage(url) {
   const loadTime = Date.now() - start
 
   const resourceTimings = await page.evaluate(() => {
-    return performance.getEntriesByType("resource").map((r) => ({
-      name: r.name,
-      type: r.initiatorType,
-      startTime: r.startTime.toFixed(2),
-      duration: r.duration.toFixed(2),
-      transferSizeKB: (r.transferSize / 1024).toFixed(2),
-      encodedBodySizeKB: (r.encodedBodySize / 1024).toFixed(2),
+    return performance.getEntriesByType("resource").map((resource) => ({
+      name: resource.name,
+      type: resource.initiatorType,
+      startTime: resource.startTime.toFixed(2),
+      duration: resource.duration.toFixed(2),
+      transferSizeKB: (resource.transferSize / 1024).toFixed(2),
+      encodedBodySizeKB: (resource.encodedBodySize / 1024).toFixed(2),
     }))
   })
-    await page.mouse.move(100, 100)
-    await page.click('body')
   let webVitals = {}
-  
   try {
-    
     webVitals = await page.evaluate(async () => {
       if (!window.webVitals) {
         await new Promise((res, rej) => {
-          const s = document.createElement("script")
-          s.src = "https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js"
-          s.onload = res
-          s.onerror = rej
-          document.head.appendChild(s)
+          const scriptWebVitals = document.createElement("script")
+          scriptWebVitals.src = "https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js"
+          scriptWebVitals.onload = res
+          scriptWebVitals.onerror = rej
+          document.head.appendChild(scriptWebVitals)
         })
       }
       return new Promise((resolve) => {
@@ -158,12 +153,12 @@ export async function measurePage(url) {
     })
   } catch {}
 
-  const pageResources = Array.from(resourceMap.values()).map((r) => ({
-    ...r,
+  const pageResources = Array.from(resourceMap.values()).map((resource) => ({
+    ...resource,
     realLoadTime: Number.parseFloat(realLoadTime),
   }))
 
-  console.log(`[v0] Total archivos capturados: ${pageResources.length}`)
+  console.log(` Total archivos capturados: ${pageResources.length}`)
 
   const pageContent = {
     html: await page.content(),
@@ -172,9 +167,9 @@ export async function measurePage(url) {
 
   await browser.close()
 
-  const totalSize = resources.reduce((acc, r) => acc + (r.sizeKB || 0), 0)
-  const grouped = resources.reduce((acc, r) => {
-    acc[r.type] = (acc[r.type] || 0) + 1
+  const totalSize = resources.reduce((acc, resource) => acc + (resource.sizeKB || 0), 0)
+  const grouped = resources.reduce((acc, resource) => {
+    acc[resource.type] = (acc[resource.type] || 0) + 1
     return acc
   }, {})
 
@@ -213,21 +208,11 @@ function getFileType(contentType, fileName) {
   const typeMap = {
     js: "javascript",
     css: "stylesheet",
-    png: "image",
-    jpg: "image",
-    jpeg: "image",
-    gif: "image",
-    svg: "image",
-    webp: "image",
-    ttf: "font",
-    woff: "font",
-    woff2: "font",
-    eot: "font",
+    png: "image", jpg: "image", jpeg: "image", gif: "image", svg: "image", webp: "image",
+    ttf: "font", woff: "font", woff2: "font", eot: "font",
     json: "json",
-    mp4: "video",
-    webm: "video",
-    mp3: "audio",
-    wav: "audio",
+    mp4: "video", webm: "video",
+    mp3: "audio", wav: "audio",
     pdf: "pdf",
     xml: "xml",
   }
@@ -237,15 +222,7 @@ function getFileType(contentType, fileName) {
 
 function shouldCapureContent(contentType) {
   // Guardar contenido de texto/código
-  const textTypes = [
-    "javascript",
-    "css",
-    "json",
-    "xml",
-    "text",
-    "application/json",
-    "application/javascript",
-    "text/html",
+  const textTypes = ["javascript", "css", "json", "xml", "text", "application/json", "application/javascript", "text/html",
   ]
   return textTypes.some((type) => contentType.includes(type))
 }

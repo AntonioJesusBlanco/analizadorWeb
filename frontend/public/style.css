@@ -7,14 +7,12 @@
 /* If styles are not applying, try hard-refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac) */
 
 :root {
-  /* Dark Theme Colors */
   --bg-primary: #0a0c10;
   --bg-secondary: #12151c;
   --bg-tertiary: #1a1e28;
   --bg-card: rgba(26, 30, 40, 0.6);
   --bg-hover: rgba(255, 255, 255, 0.05);
 
-  /* Accent Colors with Glow */
   --accent-blue: #3b82f6;
   --accent-blue-glow: rgba(59, 130, 246, 0.4);
   --accent-purple: #8b5cf6;
@@ -26,26 +24,19 @@
   --accent-yellow: #f59e0b;
   --accent-yellow-glow: rgba(245, 158, 11, 0.4);
 
-  /* Text Colors */
   --text-primary: #f0f1f3;
   --text-secondary: #e6eeff;
   --text-muted: #ffffff;
 
-  /* Border Colors */
   --border-primary: rgba(255, 255, 255, 0.08);
   --border-secondary: rgba(255, 255, 255, 0.12);
   --border-glow: rgba(59, 130, 246, 0.3);
 
-  /* Shadow Effects */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 20px var(--accent-blue-glow);
 }
-
-/* ============================= */
-/*      GLOBAL STYLES            */
-/* ============================= */
 
 * {
   box-sizing: border-box;
@@ -58,17 +49,12 @@ body {
   color: var(--text-primary) !important;
   line-height: 1.6;
 
-  /* Animated gradient background */
-  background-image: radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
-    radial-gradient(circle, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+  background-image: radial-gradient(circle at 20% 50%, rgba(0, 92, 241, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.20) 0%, transparent 50%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.10) 1px, transparent 1px) !important;
   background-size: 100% 100%, 100% 100%, 20px 20px !important;
   background-attachment: fixed !important;
 }
-
-/* ============================= */
-/*      NAVIGATION               */
-/* ============================= */
 
 .top-nav {
   position: fixed;
@@ -147,14 +133,10 @@ body {
   transform: translateX(-50%) scaleX(1);
 }
 
-/* Add padding to body for fixed nav */
 body {
   padding-top: 68px;
 }
 
-/* ============================= */
-/*      CARDS & CONTAINERS       */
-/* ============================= */
 
 .card {
   background: var(--bg-card) !important;

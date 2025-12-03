@@ -1,4 +1,4 @@
-export const API_URL = "http://localhost:3000/api"; // URL de tu backend
+export const API_URL = "https://analizadorweb-backend.onrender.com/api"; // URL de tu backend
 
 export async function register(username: string, password: string) {
   const res = await fetch(`${API_URL}/register`, {

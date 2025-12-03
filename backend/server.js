@@ -13,11 +13,10 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-const JWT_SECRET = process.env.JWT_SECRET || "claveSuperSegura"
+const JWT_SECRET = process.env.JWT_SECRET || "clave"
 
-// -----------------------------------------------------------
-//  MIDDLEWARE: Autenticación
-// -----------------------------------------------------------
+//  Middleware para autenticación
+
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization
   if (!authHeader) return res.status(401).json({ error: "Falta token" })
@@ -33,9 +32,7 @@ function authMiddleware(req, res, next) {
   }
 }
 
-// -----------------------------------------------------------
-//  REGISTER (PÚBLICO)
-// -----------------------------------------------------------
+//  Register
 app.post("/api/register", async (req, res) => {
   const { username, password } = req.body
 
@@ -54,9 +51,7 @@ app.post("/api/register", async (req, res) => {
   }
 })
 
-// -----------------------------------------------------------
-//  LOGIN (PÚBLICO)
-// -----------------------------------------------------------
+//  Login
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body
 
@@ -73,17 +68,13 @@ app.post("/api/login", async (req, res) => {
   res.json({ token })
 })
 
-// -----------------------------------------------------------
-//  LOGOUT (PÚBLICO)
-// -----------------------------------------------------------
+//  Logout
 app.post("/api/logout", (req, res) => {
-  // El token se almacena en localStorage del cliente, aquí es más una confirmación
+  // El token se almacena en el localStorage
   res.json({ message: "Sesión cerrada correctamente" })
 })
 
-// -----------------------------------------------------------
-//  AÑADIR URL (PROTEGIDO)
-// -----------------------------------------------------------
+//  Añadir URL
 app.post("/api/urls", authMiddleware, async (req, res) => {
   const { url } = req.body
   if (!url) return res.status(400).json({ error: "Falta el campo 'url'" })
@@ -94,28 +85,25 @@ app.post("/api/urls", authMiddleware, async (req, res) => {
       req.user.id,
     ])
 
-    res.json({ message: `✅ URL añadida: ${url}` })
+    res.json({ message: ` URL añadida: ${url}` })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: true, message: err.message })
   }
 })
 
-// -----------------------------------------------------------
-//  MEDIR URL Y GUARDAR MÉTRICAS + FILES (PROTEGIDO)
-// -----------------------------------------------------------
+//  Medir URL y guardar métricas y archivos 
 app.post("/api/metrics", authMiddleware, async (req, res) => {
   const { url } = req.body
   if (!url) return res.status(400).json({ error: "Falta el campo 'url'" })
 
   try {
-    console.log("[v0] ========================================")
-    console.log("[v0] Iniciando medición de:", url)
-    console.log("[v0] Usuario ID:", req.user.id)
+    console.log(" Iniciando medición de:", url)
+    console.log(" Usuario ID:", req.user.id)
     const data = await measurePage(url)
-    console.log("[v0] Medición completada")
-    console.log("[v0] pageResources:", data.pageResources)
-    console.log("[v0] Archivos encontrados:", data.pageResources?.length || 0)
+    console.log(" Medición completada")
+    console.log(" pageResources:", data.pageResources)
+    console.log(" Archivos encontrados:", data.pageResources?.length || 0)
 
     const urlResult = await pool.query("SELECT id FROM urls WHERE url=$1 AND user_id=$2", [url, req.user.id])
 
@@ -126,10 +114,10 @@ app.post("/api/metrics", authMiddleware, async (req, res) => {
         req.user.id,
       ])
       urlId = insertUrl.rows[0].id
-      console.log("[v0] URL creada con ID:", urlId)
+      console.log(" URL creada con ID:", urlId)
     } else {
       urlId = urlResult.rows[0].id
-      console.log("[v0] URL existente con ID:", urlId)
+      console.log(" URL existente con ID:", urlId)
     }
 
     const metricsResult = await pool.query(
@@ -148,61 +136,57 @@ app.post("/api/metrics", authMiddleware, async (req, res) => {
         JSON.stringify(data.webVitals),
       ],
     )
-    console.log("[v0] Métricas insertadas con ID:", metricsResult.rows[0].id)
+    console.log(" Métricas insertadas con ID:", metricsResult.rows[0].id)
 
     if (data.pageResources && data.pageResources.length > 0) {
-      console.log("[v0] ========== GUARDANDO ARCHIVOS ==========")
-      console.log("[v0] Total archivos a guardar:", data.pageResources.length)
+      console.log(" Total archivos a guardar:", data.pageResources.length)
       for (const resource of data.pageResources) {
         try {
-          console.log(`[v0] → Guardando: ${resource.name} | Tipo: ${resource.type} | Size: ${resource.size} KB`)
+          console.log(` → Guardando: ${resource.name} | Tipo: ${resource.type} | Size: ${resource.size} KB`)
           const fileResult = await pool.query(
             `INSERT INTO files 
             (url_id, file_name, file_type, file_content, content_size_kb, real_load_time)
             VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
             [urlId, resource.name, resource.type, resource.content, resource.size, resource.realLoadTime],
           )
-          console.log(`[v0] ✓ Archivo guardado con ID: ${fileResult.rows[0].id}`)
+          console.log(`Archivo guardado con ID: ${fileResult.rows[0].id}`)
         } catch (err) {
-          console.error(`[v0] ✗ Error guardando ${resource.name}:`, err.message)
+          console.error(`Error guardando ${resource.name}:`, err.message)
         }
       }
-      console.log("[v0] ==========================================")
     } else {
-      console.log("[v0] ⚠️ No hay archivos para guardar")
+      console.log("No hay archivos para guardar")
     }
 
     // Guardar HTML
     if (data.pageContent && data.pageContent.html) {
       try {
-        console.log("[v0] Guardando HTML principal...")
+        console.log(" Guardando HTML principal...")
         await pool.query(
           `INSERT INTO files 
           (url_id, file_name, file_type, file_content, content_size_kb, real_load_time)
           VALUES ($1, $2, $3, $4, $5, $6)`,
           [urlId, "index.html", "document", data.pageContent.html, data.pageContent.size, data.realLoadTime],
         )
-        console.log("[v0] ✓ HTML guardado correctamente")
+        console.log("HTML guardado correctamente")
       } catch (err) {
-        console.error("[v0] ✗ Error guardando HTML:", err.message)
+        console.error("Error guardando HTML:", err.message)
       }
     }
 
     res.json({
-      message: "✅ Métricas y archivos guardados correctamente",
+      message: "Métricas y archivos guardados correctamente",
       filesCount: (data.pageResources?.length || 0) + 1,
       data,
     })
-    console.log("[v0] ========================================")
+    console.log(" ========================================")
   } catch (err) {
-    console.error("❌ Error en /api/metrics:", err)
+    console.error(" Error en /api/metrics:", err)
     res.status(500).json({ error: true, message: err.message })
   }
 })
 
-// -----------------------------------------------------------
-//  OBTENER MIS MÉTRICAS (PROTEGIDO)
-// -----------------------------------------------------------
+//  Obtener mis métricas 
 app.get("/api/my-metrics", authMiddleware, async (req, res) => {
   try {
     const result = await pool.query(
@@ -221,18 +205,14 @@ app.get("/api/my-metrics", authMiddleware, async (req, res) => {
   }
 })
 
-// -----------------------------------------------------------
 //  OBTENER MIS URLs (PROTEGIDO)
-// -----------------------------------------------------------
 app.get("/api/urls", authMiddleware, async (req, res) => {
   const result = await pool.query("SELECT * FROM urls WHERE user_id=$1 ORDER BY created_at DESC", [req.user.id])
 
   res.json(result.rows)
 })
 
-// -----------------------------------------------------------
-//  OBTENER DISTRIBUCIÓN DE TIPOS DE ARCHIVOS (PROTEGIDO)
-// -----------------------------------------------------------
+//  Obtener propiedades de los archivos de una URL concreta (PROTEGIDO)
 app.get("/api/files/stats/:urlId", authMiddleware, async (req, res) => {
   const { urlId } = req.params
 
@@ -265,9 +245,7 @@ app.get("/api/files/stats/:urlId", authMiddleware, async (req, res) => {
   }
 })
 
-// -----------------------------------------------------------
-//  OBTENER ARCHIVOS DE UNA URL (PROTEGIDO)
-// -----------------------------------------------------------
+//  Obtener archivos de una URL
 app.get("/api/files/:urlId", authMiddleware, async (req, res) => {
   const { urlId } = req.params
 
@@ -294,9 +272,7 @@ app.get("/api/files/:urlId", authMiddleware, async (req, res) => {
   }
 })
 
-// -----------------------------------------------------------
-//  MÉTRICAS DE UNA URL CONCRETA (PROTEGIDO)
-// -----------------------------------------------------------
+//  MÉTRICAS de una url concreta
 app.get("/api/metrics/:urlId", authMiddleware, async (req, res) => {
   const { urlId } = req.params
 
@@ -308,9 +284,7 @@ app.get("/api/metrics/:urlId", authMiddleware, async (req, res) => {
   res.json(result.rows)
 })
 
-// -----------------------------------------------------------
 //  OBTENER CONTENIDO DE UN ARCHIVO ESPECÍFICO (PROTEGIDO)
-// -----------------------------------------------------------
 app.get("/api/files/content/:fileId", authMiddleware, async (req, res) => {
   const { fileId } = req.params
 
@@ -345,11 +319,9 @@ app.get("/api/files/content/:fileId", authMiddleware, async (req, res) => {
   }
 })
 
-// -----------------------------------------------------------
 //  MEDICIÓN AUTOMÁTICA CADA 6 HORAS (POR USUARIO)
-// -----------------------------------------------------------
 async function medirTodasLasUrls() {
-  console.log("🔁 Iniciando medición periódica...")
+  console.log("Iniciando medición")
 
   const result = await pool.query("SELECT * FROM urls")
 
@@ -394,15 +366,14 @@ async function medirTodasLasUrls() {
         )
       }
 
-      console.log(`✅ Métricas y archivos guardados para ${row.url}`)
+      console.log(`Métricas y archivos guardados para ${row.url}`)
     } catch (err) {
-      console.error(`❌ Error midiendo ${row.url}:`, err.message)
+      console.error(`Error midiendo ${row.url}:`, err.message)
     }
   }
 }
 
 setInterval(medirTodasLasUrls, 6 * 60 * 60 * 1000)
 
-// -----------------------------------------------------------
 const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`))
+app.listen(PORT, () => console.log(`🚀 Server running at https://analizadorweb-backend.onrender.com/`))

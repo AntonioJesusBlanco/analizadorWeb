@@ -1,1 +1,1 @@
-export const API_URL = "http://localhost:3000/"; // Cambia al URL de tu backend en producción
+export const API_URL = "https://analizadorweb-backend.onrender.com/"; 
