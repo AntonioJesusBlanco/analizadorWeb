@@ -2,28 +2,37 @@
 # exit on error
 set -o errexit
 
-# Install dependencies
+# --- 1. INSTALACIÓN DE DEPENDENCIAS Y CHROME ---
+
+echo "Instalando dependencias de Node.js..."
 npm install
 
-# Uncomment this line if you need to build your project
-# npm run build
-
-# Ensure the Puppeteer cache directory exists
+# 1.1 Asegurar que el directorio de caché de Puppeteer existe
 PUPPETEER_CACHE_DIR=/opt/render/.cache/puppeteer
 mkdir -p $PUPPETEER_CACHE_DIR
 
-# Install Puppeteer and download Chrome
+# 1.2 Instalar Puppeteer y descargar Chrome
+echo "Descargando binario de Chrome con Puppeteer..."
 npx puppeteer browsers install chrome
 
-# Store/pull Puppeteer cache with build cache
-if [[ -d /opt/render/project/src/.cache/puppeteer/chrome/ ]]; then # Cambié la condición para verificar la existencia del destino de caché
-    echo "...Copying Puppeteer Cache from Build Cache"
-    # Copying from the actual path where Puppeteer stores its Chrome binary
-    # Nota: Render recomienda usar $PUPPETEER_CACHE_DIR como la fuente de la verdad
-    cp -R /opt/render/project/src/.cache/puppeteer/chrome/* $PUPPETEER_CACHE_DIR/
-else
-    echo "...Storing Puppeteer Cache in Build Cache"
-    # AÑADIR ESTA LÍNEA CLAVE: Crear el directorio de destino antes de copiar
-    mkdir -p /opt/render/project/src/.cache/puppeteer/chrome/
-    cp -R $PUPPETEER_CACHE_DIR/* /opt/render/project/src/.cache/puppeteer/chrome/
+# --- 2. ENCONTRAR Y GUARDAR LA RUTA DEL EJECUTABLE ---
+
+# 2.1 Buscar la ruta exacta del binario 'chrome' dentro de la caché.
+# Usamos 'find' para localizar el archivo y 'head -n 1' para tomar la primera coincidencia.
+CHROME_BIN_PATH=$(find $PUPPETEER_CACHE_DIR -name 'chrome' -type f | head -n 1)
+
+# 2.2 Exportar la variable CHROME_PATH a un archivo para que el Start Command pueda leerlo.
+echo "CHROME_PATH=$CHROME_BIN_PATH" > /tmp/.puppeteer-path
+echo "Ruta de Chrome guardada en /tmp: $CHROME_BIN_PATH"
+# --- 3. GESTIÓN DE LA CACHÉ DE BUILD ---
+
+# Definir la ubicación de la caché de build de Render
+RENDER_BUILD_CACHE_PATH=/opt/render/project/src/.cache/puppeteer/chrome/
+mkdir -p $RENDER_BUILD_CACHE_PATH # Asegurar que el directorio destino existe
+
+# Comprobación de existencia (simplificada):
+if [[ -d $PUPPETEER_CACHE_DIR ]]; then
+    echo "...Almacenando la caché de Puppeteer en la caché de Build de Render..."
+    # Copiar el contenido del directorio de la versión (ej: linux-143...)
+    cp -R $PUPPETEER_CACHE_DIR/* $RENDER_BUILD_CACHE_PATH/
 fi
