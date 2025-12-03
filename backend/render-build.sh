@@ -19,8 +19,12 @@ npx puppeteer browsers install chrome
 
 # 2.1 Buscar la ruta exacta del binario 'chrome' dentro de la caché.
 # Usamos 'find' para localizar el archivo y 'head -n 1' para tomar la primera coincidencia.
-CHROME_BIN_PATH=$(find $PUPPETEER_CACHE_DIR -name 'chrome' -type f | head -n 1)
+# Buscar la ruta exacta del binario 'chrome' dentro de la caché.
+export CHROME_BIN_PATH=$(find $PUPPETEER_CACHE_DIR -name 'chrome' -type f | head -n 1)
 
+# *** ¡NUEVA LÍNEA CLAVE! ***
+# Imprimir la variable para que el Start Command pueda capturarla
+echo "CHROME_PATH_VALUE=$CHROME_BIN_PATH"
 # 2.2 Exportar la variable CHROME_PATH a un archivo para que el Start Command pueda leerlo.
 echo "CHROME_PATH=$CHROME_BIN_PATH" > /tmp/.puppeteer-path
 echo "Ruta de Chrome guardada en /tmp: $CHROME_BIN_PATH"
