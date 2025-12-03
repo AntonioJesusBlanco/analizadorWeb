@@ -1,4 +1,4 @@
-# !/usr/bin/env bash
+#!/usr/bin/env bash
 # exit on error
 set -o errexit
 
@@ -16,11 +16,14 @@ mkdir -p $PUPPETEER_CACHE_DIR
 npx puppeteer browsers install chrome
 
 # Store/pull Puppeteer cache with build cache
-if [[ ! -d $PUPPETEER_CACHE_DIR ]]; then
-echo "...Copying Puppeteer Cache from Build Cache"
-# Copying from the actual path where Puppeteer stores its Chrome binary
-cp -R /opt/render/project/src/.cache/puppeteer/chrome/ $PUPPETEER_CACHE_DIR
+if [[ -d /opt/render/project/src/.cache/puppeteer/chrome/ ]]; then # Cambié la condición para verificar la existencia del destino de caché
+    echo "...Copying Puppeteer Cache from Build Cache"
+    # Copying from the actual path where Puppeteer stores its Chrome binary
+    # Nota: Render recomienda usar $PUPPETEER_CACHE_DIR como la fuente de la verdad
+    cp -R /opt/render/project/src/.cache/puppeteer/chrome/* $PUPPETEER_CACHE_DIR/
 else
-echo "...Storing Puppeteer Cache in Build Cache"
-cp -R $PUPPETEER_CACHE_DIR /opt/render/project/src/.cache/puppeteer/chrome/
+    echo "...Storing Puppeteer Cache in Build Cache"
+    # AÑADIR ESTA LÍNEA CLAVE: Crear el directorio de destino antes de copiar
+    mkdir -p /opt/render/project/src/.cache/puppeteer/chrome/
+    cp -R $PUPPETEER_CACHE_DIR/* /opt/render/project/src/.cache/puppeteer/chrome/
 fi
