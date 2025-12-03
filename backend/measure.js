@@ -1,13 +1,66 @@
 import puppeteer from "puppeteer";
-const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+
+// 1. **DEFINIMOS LA RUTA BASE DE INSTALACIÓN:**
+//    Esta es la ruta donde Puppeteer guarda todos sus binarios en Render.
+const PUPPETEER_CACHE_DIR = "/opt/render/.cache/puppeteer";
+
+// 2. **BUSCAMOS LA RUTA DEL BINARIO INSTALADO:**
+//    Obtenemos la lista de archivos dentro del directorio de caché.
+//    Esto es necesario si process.env.PUPPETEER_EXECUTABLE_PATH no se establece.
+const getExecutablePath = async () => {
+    // Usaremos la variable de entorno si existe (lo ideal)
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        return process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+
+    // Código de respaldo para buscar la ruta real en Render
+    const fs = await import('fs/promises');
+    const path = await import('path');
+
+    try {
+        // La carpeta 'chrome' contiene los directorios de versión (ej: linux-143.0.7499.40)
+        const chromeCacheDir = path.join(PUPPETEER_CACHE_DIR, 'chrome');
+        const contents = await fs.readdir(chromeCacheDir);
+        
+        // El directorio de versión es el primer y único elemento que Puppeteer instala
+        const versionDir = contents.find(name => name.startsWith('linux-'));
+
+        if (versionDir) {
+            // Construimos la ruta completa del binario
+            return path.join(
+                chromeCacheDir, 
+                versionDir, 
+                'chrome-linux64', // Carpeta específica de la arquitectura
+                'chrome'          // Nombre del binario
+            );
+        }
+    } catch (e) {
+        console.warn("No se pudo construir la ruta de Puppeteer dinámicamente:", e.message);
+    }
+
+    // Ruta de respaldo final si todo falla
+    return "/usr/bin/chromium-browser"; 
+};
+
 
 export async function measurePage(url) {
-  const finalExecutablePath = executablePath || '/usr/bin/chromium-browser';
-const browser = await puppeteer.launch({
-  headless: true,
-  executablePath: finalExecutablePath,
-  args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
-})
+ 
+    // Llamamos a la función para obtener la ruta correcta antes de lanzar el navegador
+    const finalExecutablePath = await getExecutablePath();
+
+    console.log(`Intentando lanzar Chrome en: ${finalExecutablePath}`);
+
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: finalExecutablePath, // ¡Usar la ruta correcta!
+      args: [
+        "--no-sandbox", 
+        // ... (otros argumentos)
+      ],
+    })
+
+    // ... el resto de tu código
+
 
   const page = await browser.newPage()
   await page.setViewport({ width: 1366, height: 768 })
