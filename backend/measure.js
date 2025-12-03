@@ -1,16 +1,51 @@
 import puppeteer from "puppeteer";
+import fs from "fs/promises"; 
+import path from "path";
+
+// La única ubicación que siempre es accesible y contiene el binario
+const PUPPETEER_CACHE_DIR = "/opt/render/.cache/puppeteer";
+
+async function getExecutablePath() {
+    // Si la variable de entorno estuviera establecida (aunque falle en Render)
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        return process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+    
+    try {
+        const chromeCacheDir = path.join(PUPPETEER_CACHE_DIR, 'chrome');
+        
+        // Lee el contenido para encontrar la carpeta de versión (ej: 'linux-143.0.7499.40')
+        const contents = await fs.readdir(chromeCacheDir);
+        const versionDir = contents.find(name => name.startsWith('linux-'));
+
+        if (versionDir) {
+            // Construye la ruta absoluta y correcta
+            return path.join(chromeCacheDir, versionDir, 'chrome-linux64', 'chrome');
+        }
+    } catch (e) {
+        // Esto captura errores si el directorio no existe o falla la lectura
+        console.error("Error crítico: Falló la búsqueda dinámica de Chrome:", e.message);
+    }
+    
+    // Fallback inútil (solo para lanzar el error si todo falla)
+    return "/usr/bin/chromium-browser"; 
+}
+
 
 export async function measurePage(url) {
  
-    // Usar la variable que se cargó con 'source .puppeteer-path'
-    const finalExecutablePath = process.env.CHROME_PATH; 
+    const finalExecutablePath = await getExecutablePath();
+    
+    if (finalExecutablePath.includes("chromium-browser")) {
+        // Lanzamos el error que estabas viendo antes
+        throw new Error(`Could not find Chrome. The configured executablePath (${finalExecutablePath}) failed.`);
+    }
 
-    // Opcional: añadir un log para verificar que la ruta existe
-    console.log(`Intentando lanzar Chrome en la ruta: ${finalExecutablePath}`); 
+    console.log(`Lanzando Chrome desde la ruta dinámica: ${finalExecutablePath}`);
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: finalExecutablePath, 
+      executablePath: finalExecutablePath, // ¡Esta es la clave!
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
     })
 
