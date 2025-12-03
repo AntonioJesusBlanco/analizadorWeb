@@ -1,58 +1,77 @@
-// Dentro de measure.js
 import puppeteer from "puppeteer";
-import fs from "fs/promises"; // Módulo nativo para leer archivos
-import path from "path";       // Módulo nativo para construir rutas
+import fs from "fs/promises";
+import path from "path";
 
-// Ubicación estándar de caché en Render que sabemos que existe
-const PUPPETEER_CACHE_DIR = "/opt/render/.cache/puppeteer";
+// La ruta que creemos que es persistente
+const PUPPETEER_CACHE_DIR = "/opt/render/project/src/backend/.puppeteer_cache";
 
 async function getExecutablePath() {
-    // Si la variable de entorno funciona por casualidad, la usamos (aunque es improbable)
+    
+    // Si la variable de entorno estuviera mágicamente disponible
     if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+        console.log("DEBUG: Usando variable de entorno Puppeteer.");
         return process.env.PUPPETEER_EXECUTABLE_PATH;
     }
     
     try {
         const chromeCacheDir = path.join(PUPPETEER_CACHE_DIR, 'chrome');
         
-        // 1. Leer el contenido de la caché para encontrar la carpeta de versión
+        // 1. PRIMER LOG: ¿Dónde intenta buscar?
+        console.log(`DEBUG: 1. Intentando leer directorio: ${chromeCacheDir}`); 
+        
+        // Esta línea es la que puede fallar con ENOENT
         const contents = await fs.readdir(chromeCacheDir);
         
-        // 2. Buscar la carpeta que empieza por 'linux-' (ej: linux-143.0.7499.40)
+        // 2. SEGUNDO LOG: ¿Qué carpetas encontró?
+        console.log(`DEBUG: 2. Contenido encontrado: ${contents.join(', ')}`);
+        
         const versionDir = contents.find(name => name.startsWith('linux-'));
 
         if (versionDir) {
-            // 3. Construir la ruta absoluta y correcta
-            return path.join(chromeCacheDir, versionDir, 'chrome-linux64', 'chrome');
+            // 3. TERCER LOG: ¿Qué versión encontró?
+            console.log(`DEBUG: 3. Carpeta de versión encontrada: ${versionDir}`);
+            
+            const finalPath = path.join(chromeCacheDir, versionDir, 'chrome-linux64', 'chrome');
+            
+            // 4. CUARTO LOG: ¿Cuál es la ruta final construida?
+            console.log(`DEBUG: 4. Ruta final construida: ${finalPath}`);
+            
+            return finalPath;
         }
     } catch (e) {
-        console.error("Error al buscar el binario de Chrome de forma dinámica:", e.message);
+        // QUINTO LOG: Si falla, ¿cuál es el error y la ruta que no encontró?
+        console.error(`ERROR DEBUG: La búsqueda falló en ${PUPPETEER_CACHE_DIR}. Error: ${e.message}`);
     }
     
-    // Fallback: Si todo falla, devuelve la ruta que lanza el error original.
+    // Si todo falla
     return "/usr/bin/chromium-browser"; 
 }
 
+// ... el resto del código measurePage (donde se llama a getExecutablePath) ...
 
 export async function measurePage(url) {
  
     const finalExecutablePath = await getExecutablePath();
     
-    // Si la búsqueda falla, la aplicación lanzará el error de "Browser not found"
     if (finalExecutablePath.includes("chromium-browser")) {
+        // Lanza el error original de Puppeteer si la búsqueda falla
         throw new Error(`Could not find Chrome. The configured executablePath (${finalExecutablePath}) failed.`);
     }
 
-    console.log(`Lanzando Chrome desde la ruta dinámica: ${finalExecutablePath}`);
+    console.log(`🚀 Lanzando Chrome desde la ruta dinámica: ${finalExecutablePath}`);
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: finalExecutablePath, // ¡Esta es la ruta dinámica y correcta!
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+      // **LA RUTA BUSCADA DINÁMICAMENTE**
+      executablePath: finalExecutablePath, 
+      args: [
+        "--no-sandbox", 
+        "--disable-setuid-sandbox", 
+        "--disable-dev-shm-usage"
+      ],
     })
     
-
-
+  
   const page = await browser.newPage()
   await page.setViewport({ width: 1366, height: 768 })
 
