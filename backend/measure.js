@@ -1,10 +1,11 @@
 import puppeteer from "puppeteer";
-
+const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
 
 export async function measurePage(url) {
-  
+  const finalExecutablePath = executablePath || '/usr/bin/chromium-browser';
 const browser = await puppeteer.launch({
   headless: true,
+  executablePath: finalExecutablePath,
   args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
 })
 
