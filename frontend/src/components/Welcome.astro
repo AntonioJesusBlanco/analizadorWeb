@@ -95,12 +95,12 @@ import Layout from '../layouts/Layout.astro';
     <div class="container">
       <div class="row">
         <div class="col-lg-8 mx-auto">
-          <h2 class="h3 fw-bold mb-4">📖 ¿Qué es este proyecto?</h2>
+          <h2 class="h3 fw-bold mb-4">¿Qué es este proyecto?</h2>
           <p class="lead">
-            Este es un <strong>analizador web profesional</strong> que permite a los usuarios registrados analizar el rendimiento de cualquier sitio web mediante métricas avanzadas como Web Vitals (LCP, FID, CLS), tiempos de carga, recursos utilizados y mucho más.
+            Este es un <strong>analizador web profesional</strong> que permite a los usuarios registrados analizar el rendimiento de cualquier sitio web mediante métricas, en el que se podran observar datos como FCP, TTFB, DOM..., tiempos de carga, recursos utilizados, etc...
           </p>
           <p>
-            El sistema captura automáticamente todos los archivos que componen una página web (HTML, CSS, JavaScript, imágenes, fuentes) y proporciona visualizaciones detalladas mediante gráficas interactivas.
+            El sistema captura todos los archivos que componen una página web (HTML, CSS, JavaScript, imágenes, fuentes) y proporciona visualizaciones detalladas mediante gráficas interactivas.
           </p>
         </div>
       </div>
@@ -116,14 +116,14 @@ import Layout from '../layouts/Layout.astro';
           <div class="text-center">
             <div class="feature-icon mx-auto">🔐</div>
             <h3 class="h5 fw-bold">Autenticación Segura</h3>
-            <p class="">Sistema de registro y login con JWT y bcrypt para proteger tus datos</p>
+            <p class="">Sistema de registro y login con JWT para proteger los datos</p>
           </div>
         </div>
         <div class="col-md-4">
           <div class="text-center">
             <div class="feature-icon mx-auto">📊</div>
-            <h3 class="h5 fw-bold">Métricas Web Vitals</h3>
-            <p class="">Captura LCP, FID, CLS, FCP, TTFB siguiendo estándares de Google</p>
+            <h3 class="h5 fw-bold">Métricas</h3>
+            <p class="">Captura metricas como FCP, TCP, DNS, TTFB, y DOM</p>
           </div>
         </div>
         <div class="col-md-4">
@@ -138,13 +138,6 @@ import Layout from '../layouts/Layout.astro';
             <div class="feature-icon mx-auto">🗂️</div>
             <h3 class="h5 fw-bold">Captura de Archivos</h3>
             <p class="">Almacena todos los recursos de la página (JS, CSS, imágenes, fuentes)</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="text-center">
-            <div class="feature-icon mx-auto">⏱️</div>
-            <h3 class="h5 fw-bold">Mediciones Automáticas</h3>
-            <p class="">Análisis periódico cada 6 horas de todas las URLs guardadas</p>
           </div>
         </div>
         <div class="col-md-4">
@@ -255,7 +248,7 @@ import Layout from '../layouts/Layout.astro';
                     <li class="text-white"><strong>metrics</strong>: Todas las métricas de rendimiento por URL y fecha</li>
                     <li class="text-white"><strong>files</strong>: Cada archivo capturado (nombre, tipo, contenido, tamaño, tiempo de carga)</li>
                   </ul>
-                  <p class="mb-0">Esto permite mantener un historial completo de todas las mediciones realizadas.</p>
+                  <p class="mb-0 text-white">Esto permite mantener un historial completo de todas las mediciones realizadas.</p>
                 </div>
               </div>
             </div>
@@ -276,13 +269,13 @@ import Layout from '../layouts/Layout.astro';
                     <li class="text-white"><strong>Tarjetas resumen</strong>: Tiempo de carga, tamaño total, número de recursos, FCP</li>
                     <li class="text-white"><strong>Pestañas organizadas</strong>:
                       <ul>
-                        <li><strong>Web Vitals</strong>: LCP, FID, CLS, FCP, TTFB con badges de color según thresholds de Google</li>
+                        <li><strong>Web Vitals</strong>: FCP, TTFB con badges de color según thresholds de Google</li>
                         <li><strong>Performance</strong>: DNS, TCP, TTFB, Response, DOM Load detallados</li>
                         <li><strong>Gráficas</strong>: Visualizaciones con Chart.js (barras, donut, líneas)</li>
                         <li><strong>Recursos</strong>: Lista de todos los archivos capturados</li>
                       </ul>
                     </li>
-                    <li><strong>Nombre del usuario</strong> decodificado del JWT en el header</li>
+                    <li class="text-white"><strong>Nombre del usuario</strong> decodificado del JWT en el header</li>
                   </ul>
                 </div>
               </div>

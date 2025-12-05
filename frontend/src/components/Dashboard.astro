@@ -186,11 +186,11 @@ token = Astro.cookies.get("token")?.value;
                     <span id="perf-fcp" class="badge bg-light text-dark">- ms</span>
                   </div>
                   <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                    <span class="small">DNS Lookup</span>
+                    <span class="small">DNS</span>
                     <span id="perf-dns" class="badge bg-light text-dark">- ms</span>
                   </div>
                   <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                    <span class="small">TCP Connect</span>
+                    <span class="small">TCP</span>
                     <span id="perf-tcp" class="badge bg-light text-dark">- ms</span>
                   </div>
                   <div class="list-group-item d-flex justify-content-between align-items-center px-0">
@@ -198,7 +198,7 @@ token = Astro.cookies.get("token")?.value;
                     <span id="perf-ttfb" class="badge bg-light text-dark">- ms</span>
                   </div>
                   <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                    <span class="small">Response Download</span>
+                    <span class="small">Response</span>
                     <span id="perf-response" class="badge bg-light text-dark">- ms</span>
                   </div>
                   <div class="list-group-item d-flex justify-content-between align-items-center px-0">
@@ -219,7 +219,7 @@ token = Astro.cookies.get("token")?.value;
                   <div class="col-12">
                     <div class="card border">
                       <div class="card-body">
-                        <h5 class="card-title h6 text-white">Desglose de Performance (ms)</h5>
+                        <h5 class="card-title h6 text-white">Desglose de datos principales</h5>
                         <canvas id="performanceChart" height="80"></canvas>
                       </div>
                     </div>
@@ -546,7 +546,7 @@ token = Astro.cookies.get("token")?.value;
       performanceChart = new Chart(performanceCtx, {
         type: 'bar',
         data: {
-          labels: ['FCP (ms)', 'TTFB','DNS', 'TCP' , 'Response', 'DOM Load'],
+          labels: ['FCP', 'TTFB','DNS', 'TCP' , 'Response', 'DOM Load'],
           datasets: [{
             label: 'Tiempo (ms)',
             data: [
