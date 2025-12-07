@@ -587,7 +587,11 @@ body {
 
 @media (max-width: 768px) {
   .nav-links {
-    gap: 16px;
+    gap: 10px;
+  }
+
+  .nav-logo{
+    display: none;
   }
 
   .nav-item {
